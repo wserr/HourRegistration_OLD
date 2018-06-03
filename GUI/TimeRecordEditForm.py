@@ -16,6 +16,8 @@ class TimeRecordEditForm:
         self.ProjectValue=StringVar(master,timeRecord.Project)
         self.RecordTypeValue=StringVar(master,timeRecord.RecordType)
         self.DescriptionValue=StringVar(master,value=timeRecord.Description)
+        self.OneNoteValue = StringVar(master,value=timeRecord.OneNoteLink)
+        if self.OneNoteValue.get()=="None": self.OneNoteValue.set("")
         self.Connection = conn
         self.Master = master
         self.Cache = Cache
@@ -51,11 +53,17 @@ class TimeRecordEditForm:
         self.DescriptionTextBox = Entry(master,textvariable = self.DescriptionValue)
         self.DescriptionTextBox.grid(row=4,column = 1,sticky='NSEW')
 
+        self.OneNoteLabel = Label(master,text = 'OneNote Link: ')
+        self.OneNoteLabel.grid(row=5,column=0)
+        
+        self.OneNoteTextBox = Entry(master,textvariable = self.OneNoteValue)
+        self.OneNoteTextBox.grid(row=5,column = 1,sticky='NSEW')
+
         self.OKButton = Button(master,text="OK",command = self.Confirm)
-        self.OKButton.grid(row = 5,column = 0,sticky='NSEW')
+        self.OKButton.grid(row = 6,column = 0,sticky='NSEW')
 
         self.CancelButton = Button(master, text="Cancel",command=self.Quit)
-        self.CancelButton.grid(row=5,column=1,sticky='NSEW')
+        self.CancelButton.grid(row=6,column=1,sticky='NSEW')
 
         self.FillCombos()
 
@@ -69,8 +77,25 @@ class TimeRecordEditForm:
         Tr.StartHour = self.GetDate(Tr.StartHour,self.StartDate.get())
         if not self.EndDate.get() =='':           
             Tr.EndHour = self.GetDate(Tr.EndHour,self.EndDate.get())
-        Tr.ProjectID = self.Cache.Projects[self.ProjectsCombo.current()].ID
+        Tr.ProjectID = self.Cache.ActiveProjects[self.ProjectsCombo.current()].ID
         Tr.RecordTypeID = self.Cache.RecordTypes[self.RecordTypeCombo.current()].ID
+
+
+        oneNoteLink = self.OneNoteValue.get()
+
+        try:
+            if not oneNoteLink=="" and not oneNoteLink.startswith("onenote"):
+                secondPart = oneNoteLink.split("onenote")[1]
+                oneNoteLink = "onenote"+secondPart
+        except:
+            oneNoteLink = ""
+            messagebox.showerror('Error',"No valid link found")
+            return
+
+
+        Tr.OneNoteLink = oneNoteLink
+
+
         blTr.Update(Tr)
         self.Master.quit()
 
@@ -83,7 +108,7 @@ class TimeRecordEditForm:
         self.FillRecordTypeCombo()
 
     def FillProjectTypeCombo(self):
-        self.ProjectsCombo['value'] = self.Cache.Projects
+        self.ProjectsCombo['value'] = self.Cache.ActiveProjects
 
     def FillRecordTypeCombo(self):
         self.RecordTypeCombo['value'] = self.Cache.RecordTypes

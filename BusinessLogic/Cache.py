@@ -9,7 +9,8 @@ class Cache:
         self.blPr = BLProject.BLProject(conn)
         self.blRt = BLRecordType.BLRecordType(conn)
         self.DayViews = self.blVwD.GetAll()
-        self.Projects = self.blPr.GetAll()
+        self.ActiveProjects = self.blPr.GetAll(False)
+        self.AllProjects = self.blPr.GetAll()
         self.RecordTypes = self.blRt.GetAll()
         self.TimeRecordViews = []
 
@@ -20,14 +21,16 @@ class Cache:
         self.DayViews = self.blVwD.GetAll()
 
     def RefreshProjects(self):
-        self.Projects = self.blPr.GetAll()
+        self.ActiveProjects = self.blPr.GetAll(False)
+        self.AllProjects = self.blPr.GetAll()
 
     def RefreshRecordTypes(self):
         self.RecordTypes = self.blRt.GetAll()
 
     def RefreshAllStaticData(self):
         self.DayViews = self.blVwD.GetAll()
-        self.Projects = self.blPr.GetAll()
+        self.ActiveProjects = self.blPr.GetAll(False)
+        self.AllProjects = self.blPr.GetAll()
         self.RecordTypes = self.blRt.GetAll()        
 
 

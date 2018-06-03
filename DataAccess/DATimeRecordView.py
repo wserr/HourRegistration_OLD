@@ -10,7 +10,7 @@ class DATimeRecordView:
         rows = self.Cursor.fetchall()
         TimeRecords = []
         for row in rows:
-            timeRecord = TimeRecordView.TimeRecordView(row[0],row[1],row[2],row[3],row[4],row[5],row[6],str(row[7]).replace("\n",""))
+            timeRecord = TimeRecordView.TimeRecordView(row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],str(row[8]).replace("\n",""))
             TimeRecords.append(timeRecord)
         return TimeRecords[0]
 
@@ -25,15 +25,15 @@ class DATimeRecordView:
         rows = self.Cursor.fetchall()
         TimeRecordViews = []
         for row in rows:
-            timeRecordview = TimeRecordView.TimeRecordView(row[0],row[1],row[2],row[3],row[4],row[5],row[6],str(row[7]).replace("\n",""))
+            timeRecordview = TimeRecordView.TimeRecordView(row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],str(row[8]).replace("\n",""))
             TimeRecordViews.append(timeRecordview)
         return TimeRecordViews
 
     def GetAllBetweenDates(self,fromDate,toDate):
-        self.Cursor.execute("SELECT * FROM vwTimeRecord where Date between ? and ? order by StartTime DESC",(fromDate,toDate))
+        self.Cursor.execute("SELECT * from vwTimeRecord where TRE_ID in (SELECT TRE_ID from tblTimeRecord where TRE_StartHour between ? and ?)",(fromDate,toDate))
         rows = self.Cursor.fetchall()
         TimeRecordViews = []
         for row in rows:
-            timeRecordview = TimeRecordView.TimeRecordView(row[0],row[1],row[2],row[3],row[4],row[5],row[6],str(row[7]).replace("\n",""))
+            timeRecordview = TimeRecordView.TimeRecordView(row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],str(row[8]).replace("\n",""))
             TimeRecordViews.append(timeRecordview)
         return TimeRecordViews

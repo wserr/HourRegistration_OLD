@@ -11,7 +11,7 @@ class DATimeRecord:
         rows = self.Cursor.fetchall()
         TimeRecords = []
         for row in rows:
-            timeRecord = TimeRecord.TimeRecord(row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7])
+            timeRecord = TimeRecord.TimeRecord(row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8])
             TimeRecords.append(timeRecord)
         return TimeRecords
 
@@ -26,18 +26,18 @@ class DATimeRecord:
         rows = self.Cursor.fetchall()
         TimeRecords = []
         for row in rows:
-            timeRecord = TimeRecord.TimeRecord(row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7])
+            timeRecord = TimeRecord.TimeRecord(row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8])
             TimeRecords.append(timeRecord)
         return TimeRecords[0]
 
     def Create(self,timeRecord):
-        self.Cursor.execute("INSERT INTO tblTimeRecord (TRE_StartHour,TRE_EndHour,TRE_ProjectID,TRE_RecordTypeID,TRE_Description,TRE_StatusID,TRE_Minutes) values(?,?,?,?,?,?,?)",
-        (timeRecord.StartHour,timeRecord.EndHour,timeRecord.ProjectID,timeRecord.RecordTypeID,timeRecord.Description,timeRecord.StatusID,timeRecord.Minutes))
+        self.Cursor.execute("INSERT INTO tblTimeRecord (TRE_StartHour,TRE_EndHour,TRE_ProjectID,TRE_RecordTypeID,TRE_Description,TRE_StatusID,TRE_Minutes,TRE_OneNote) values(?,?,?,?,?,?,?,?)",
+        (timeRecord.StartHour,timeRecord.EndHour,timeRecord.ProjectID,timeRecord.RecordTypeID,timeRecord.Description,timeRecord.StatusID,timeRecord.Minutes,timeRecord.OneNoteLink))
         self.Connection.commit()
 
     def Update(self, timeRecord):
-        self.Cursor.execute("Update tblTimeRecord set TRE_StartHour = ?,TRE_EndHour = ?,TRE_ProjectID=?,TRE_RecordTypeID=?,TRE_Description=?,TRE_StatusID=?,TRE_Minutes=? where TRE_ID = ?",
-        (timeRecord.StartHour,timeRecord.EndHour,timeRecord.ProjectID,timeRecord.RecordTypeID,timeRecord.Description,timeRecord.StatusID,timeRecord.Minutes,timeRecord.ID))
+        self.Cursor.execute("Update tblTimeRecord set TRE_StartHour = ?,TRE_EndHour = ?,TRE_ProjectID=?,TRE_RecordTypeID=?,TRE_Description=?,TRE_StatusID=?,TRE_Minutes=?,TRE_OneNote=? where TRE_ID = ?",
+        (timeRecord.StartHour,timeRecord.EndHour,timeRecord.ProjectID,timeRecord.RecordTypeID,timeRecord.Description,timeRecord.StatusID,timeRecord.Minutes,timeRecord.OneNoteLink,timeRecord.ID))
         self.Connection.commit()
 
     def GetAllForDate(self,date):
@@ -45,7 +45,12 @@ class DATimeRecord:
         rows = self.Cursor.fetchall()
         TimeRecords = []
         for row in rows:
-            timeRecord = TimeRecord.TimeRecord(row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7])
+            timeRecord = TimeRecord.TimeRecord(row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8])
             TimeRecords.append(timeRecord)
-        return TimeRecords  
+        return TimeRecords 
+
+    def DeleteByID(self, id):
+        self.Cursor.execute("delete from tblTimeRecord where TRE_ID = ?",(str(id),))
+        self.Connection.commit()
+
 

@@ -43,4 +43,7 @@ class BLTimeRecord:
             idList.append(item.ID)
         return idList
 
+    def DeleteByID(self, id):
+        self.DAL.DeleteByID(id)
+
     

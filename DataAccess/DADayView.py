@@ -6,7 +6,7 @@ class DADayView:
         self.Cursor = conn.Connection.cursor()
 
     def GetAll(self):
-        self.Cursor.execute("SELECT * FROM vwDays order by Workday DESC limit 7")
+        self.Cursor.execute("SELECT * FROM vwDays limit 5")
         rows = self.Cursor.fetchall()
         Days = []
         for row in rows:

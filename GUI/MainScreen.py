@@ -6,6 +6,8 @@ from BusinessEntities import TimeRecord,TimeRecordStatusEnum,DayView
 import time
 from GUI.TimeRecordEditForm import *
 from GUI.ExportToExcelForm import *
+from GUI.ProjectListForm import *
+import os
 
 class MainScreen:
     def __init__(self,master,connection):
@@ -28,15 +30,40 @@ class MainScreen:
         self.RecordIcon = PhotoImage(file=".\\Resources\\add.png")
         self.RecordButton.config(image=self.RecordIcon,width="32",height="32")
 
+        self.DeleteRecordButton = Button(master,text = "Delete Record",command = self.DeleteRecord)
+        self.DeleteRecordButton.grid(row=1  ,column = 1,sticky='NSEW')
+        self.DeleteRecordIcon = PhotoImage(file=".\\Resources\\delete.png")
+        self.DeleteRecordButton.config(image=self.DeleteRecordIcon,width="32",height="32")
+
         self.StopRecordButton = Button(master,text = "Stop Recording",command = self.StopRecording)
-        self.StopRecordButton.grid(row=  1,column = 1,sticky='NSEW')
+        self.StopRecordButton.grid(row=  1,column = 2,sticky='NSEW')
         self.StopRecordIcon = PhotoImage(file=".\\Resources\\stop.png")
         self.StopRecordButton.config(image=self.StopRecordIcon,width="32",height="32")
             
         self.CopyToCodexButton = Button(master, text = "Copy To Codex", command = self.CopyToCodex)
-        self.CopyToCodexButton.grid(row = 1,column=2,sticky='NSEW')
-        self.CopyIcon = PhotoImage(file=".\\Resources\\copy.png")
+        self.CopyToCodexButton.grid(row = 2,column=0,sticky='NSEW')
+        self.CopyIcon = PhotoImage(file=".\\Resources\\copyCodex.png")
         self.CopyToCodexButton.config(image=self.CopyIcon,width="32",height="32")
+
+        self.ExcelButton = Button(master,text ="Export",command = self.ExportToExcel)
+        self.ExcelButton.grid(row = 2,column=1,sticky='NSEW')
+        self.ExcelIcon = PhotoImage(file=".\\Resources\\excel.png")
+        self.ExcelButton.config(image=self.ExcelIcon,width="32",height="32")
+
+        self.ProjectButton = Button(master,text = "Project",command = self.OpenProjectListForm)
+        self.ProjectButton.grid(row=2,column = 2,sticky='NSEW')
+        self.ProjectIcon = PhotoImage(file=".\\Resources\\add_project.png")
+        self.ProjectButton.config(image=self.ProjectIcon,width="32",height="32")
+
+        self.CopyRecordButton = Button(master,text = "CopyRecord",command = self.CopyRecord)
+        self.CopyRecordButton.grid(row=3,column = 0,sticky='NSEW')
+        self.CopyRecordIcon = PhotoImage(file=".\\Resources\\copy.png")
+        self.CopyRecordButton.config(image=self.CopyRecordIcon,width="32",height="32")
+
+        self.OneNoteButton = Button(master,text = "OneNote",command = self.OpenInOneNote)
+        self.OneNoteButton.grid(row=3,column = 1,sticky='NSEW')
+        self.OneNoteIcon = PhotoImage(file=".\\Resources\\onenote.png")
+        self.OneNoteButton.config(image=self.OneNoteIcon,width="32",height="32")
 
         self.ProjectsCombo = ttk.Combobox(master,width = 100,textvariable = self.ProjectValue)
         self.ProjectsCombo.grid(row = 0,column = 3,sticky='NSEW')
@@ -48,12 +75,7 @@ class MainScreen:
         self.DescriptionTextBox.grid(row = 2,column = 3,sticky='NSEW')
 
         self.RecordsListBox = Listbox(master)
-        self.RecordsListBox.grid(row = 3,column =3, rowspan = 2,columnspan = 3,sticky='NSEW')
-
-        self.ExcelButton = Button(master,text ="Export",command = self.ExportToExcel)
-        self.ExcelButton.grid(row = 2,column=0,sticky='NSEW')
-        self.ExcelIcon = PhotoImage(file=".\\Resources\\Excel.png")
-        self.ExcelButton.config(image=self.ExcelIcon,width="32",height="32")
+        self.RecordsListBox.grid(row = 3,column =3, rowspan = 7,columnspan = 3,sticky='NSEW')
 
         self.EventLogExplanationLabel = Label(master,text="Laatst aangemeld op: ")
         self.EventLogExplanationLabel.grid(row=0,column=4)
@@ -68,7 +90,39 @@ class MainScreen:
         self.RecordsListBox.bind('<Double-1>', lambda x: self.ShowEditForm())
 
         self.SetButtonsEnabled()
-    
+
+    def OpenInOneNote(self):
+        sel = self.RecordsListBox.curselection()[0]
+        timeRecordView = self.Cache.TimeRecordViews[sel]
+        os.system("start "+timeRecordView.OneNoteLink)
+
+    def OpenProjectListForm(self):
+        projectListForm = ProjectListForm(self.Cache,self.dbConnection)
+        projectListForm.Show()     
+        self.Cache.RefreshAllStaticData()
+        self.FillCombos()
+        projectListForm.Master.destroy() 
+
+
+    def CopyRecord(self):
+        blTr = BLTimeRecord.BLTimeRecord(self.dbConnection)
+        sel = self.RecordsListBox.curselection()[0]
+        timeRecordView = self.Cache.TimeRecordViews[sel]
+        timeRecord = blTr.GetById(timeRecordView.ID)
+        timeRecord.ID = None
+        timeRecord.StartHour = Globals.GetCurrentTime()
+        timeRecord.EndHour = None
+        timeRecord.StatusID = TimeRecordStatusEnum.TimeRecordStatusEnum.Gestart.value
+        timeRecord.Minutes = 0
+        blTr.Create(timeRecord)
+        index = self.DaysCombo.current()
+        self.DaysCombo.current(0)
+        self.Cache.RefreshAllStaticData()
+        self.FillCombos()
+        self.DaysCombo.current(index)
+        self.RefreshTimeRecords() 
+        self.SetButtonsEnabled()       
+      
     def RecordsListBox_SelectedItemChanged(self,eventObject):
         self.SetButtonsEnabled()
 
@@ -92,7 +146,7 @@ class MainScreen:
         self.FillDays()
 
     def FillProjectCombo(self):
-        self.ProjectsCombo['value'] = self.Cache.Projects
+        self.ProjectsCombo['value'] = self.Cache.ActiveProjects
 
     def FillRecordTypeCombo(self):
         self.RecordTypeCombo['value'] = self.Cache.RecordTypes
@@ -119,7 +173,7 @@ class MainScreen:
         blPR = BLProject.BLProject(self.dbConnection)
         recordType = blRT.GetRecordTypeIDFromDescription(self.RecordTypeValue.get())
         project = blPR.GetProjectIDFromDescription(self.ProjectValue.get())
-        timeRecord = TimeRecord.TimeRecord(None,Globals.GetCurrentTime(),None,project,recordType,self.DescriptionValue.get(),TimeRecordStatusEnum.TimeRecordStatusEnum.Gestart.value,0)
+        timeRecord = TimeRecord.TimeRecord(None,Globals.GetCurrentTime(),None,project,recordType,self.DescriptionValue.get(),TimeRecordStatusEnum.TimeRecordStatusEnum.Gestart.value,0,None)
         
         valid = TimeRecordValidation.TimeRecordValidation()
         validationMessage = valid.ValidateOnCreation(timeRecord)
@@ -129,11 +183,14 @@ class MainScreen:
                 errorMessage = errorMessage + i + '\n'
             messagebox.showerror('Error',errorMessage)
         else:
+            index = self.DaysCombo.current()
+            self.DaysCombo.current(0)
             blTr = BLTimeRecord.BLTimeRecord(self.dbConnection)
             blTr.Create(timeRecord)
-            self.RefreshTimeRecords()
+            self.Cache.RefreshAllStaticData()
             self.FillCombos()
-
+            self.DaysCombo.current(index)
+            self.RefreshTimeRecords() 
 
     def StopRecording(self):
         blTr = BLTimeRecord.BLTimeRecord(self.dbConnection)
@@ -144,10 +201,12 @@ class MainScreen:
 
         timeRecord.StatusID = TimeRecordStatusEnum.TimeRecordStatusEnum.Gestopt.value
         blTr.Update(timeRecord)
-
-        self.RefreshTimeRecords()
-        self.Cache.RefreshDayViews()
+        index = self.DaysCombo.current()
+        self.DaysCombo.current(0)
+        self.Cache.RefreshAllStaticData()
         self.FillCombos()
+        self.DaysCombo.current(index)
+        self.RefreshTimeRecords()
     
     def CopyToCodex(self):
         self.Master.clipboard_clear()
@@ -200,10 +259,12 @@ class MainScreen:
         timeRecordView = self.Cache.TimeRecordViews[self.RecordsListBox.curselection()[0]]    
         edit = TimeRecordEditForm(self.dbConnection,timeRecordView,self.Cache)
         edit.Show()
-
-        self.RefreshTimeRecords()
+        index = self.DaysCombo.current()
+        self.DaysCombo.current(0)
         self.Cache.RefreshAllStaticData()
         self.FillCombos()
+        self.DaysCombo.current(index)
+        self.RefreshTimeRecords()
         edit.Master.destroy()
 
     def ExportToExcel(self):
@@ -211,9 +272,26 @@ class MainScreen:
         excel.Show()
         excel.Master.destroy()
 
+    def DeleteRecord(self):
+        bl = BLTimeRecord.BLTimeRecord(self.dbConnection)
+        indexRecordsListBox = self.RecordsListBox.curselection()[0]
+        record = self.Cache.TimeRecordViews[indexRecordsListBox]
+        bl.DeleteByID(record.ID)
+        index = self.DaysCombo.current()
+        self.DaysCombo.current(0)
+        self.Cache.RefreshAllStaticData()
+        self.FillCombos()
+        self.DaysCombo.current(index)
+        self.RefreshTimeRecords()
+        self.SetButtonsEnabled()
+
+
     def SetButtonsEnabled(self):
         enableStop = True
         enableCopyToCodex = True
+        enableDelete = True
+        enableCopyRecord = True
+        enableOpenOneNote = True
         indexDaysCombo = self.DaysCombo.current()
         indexRecordsListBox = self.RecordsListBox.curselection()
         current = Globals.GetCurrentDay()
@@ -226,7 +304,14 @@ class MainScreen:
                 enableStop=False
         if len(indexRecordsListBox) == 0:
             enableStop=False
-
+            enableDelete = False
+            enableCopyRecord = False
+            enableOpenOneNote = False
+        else:
+            trView = self.Cache.TimeRecordViews[indexRecordsListBox[0]]
+            if trView.OneNoteLink == 'None' or trView.OneNoteLink == "":
+                enableOpenOneNote = False
+            
         bl = BLTimeRecord.BLTimeRecord(self.dbConnection)
         records = bl.GetAllForDate(date)
         for record in records:
@@ -235,6 +320,9 @@ class MainScreen:
     
         self.SetButton(enableStop,self.StopRecordButton)
         self.SetButton(enableCopyToCodex,self.CopyToCodexButton)
+        self.SetButton(enableDelete,self.DeleteRecordButton)
+        self.SetButton(enableCopyRecord,self.CopyRecordButton)
+        self.SetButton(enableOpenOneNote,self.OneNoteButton)
 
         
     def SetButton(self,enabled,button):

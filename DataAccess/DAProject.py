@@ -4,13 +4,17 @@ from BusinessEntities import Project
 class DAProject:
     def __init__(self,conn):
         self.Cursor = conn.Connection.cursor()
+        self.Connection = conn.Connection
 
-    def GetAll(self):
-        self.Cursor.execute("SELECT * FROM tblProject")
+    def GetAll(self,includeNotActive):
+        if includeNotActive==False:
+            self.Cursor.execute("SELECT * FROM tblProject where PRO_Actief = 1")
+        else:
+            self.Cursor.execute("SELECT * FROM tblProject")
         rows = self.Cursor.fetchall()
         Projects = []
         for row in rows:
-            project = Project.Project(row[0],row[1],row[2].replace("\n",""))
+            project = Project.Project(row[0],row[1],row[2],row[3])
             Projects.append(project)
         return Projects
 
@@ -36,4 +40,15 @@ class DAProject:
         else:
             return result[0] 
 
-        
+    def Create(self,project):
+        self.Cursor.execute("INSERT INTO tblProject (PRO_Description,PRO_ExterneID) values(?,?)",
+        (project.Description,project.ExterneId))
+        self.Connection.commit()
+
+    def Update(self, project):
+        self.Cursor.execute("Update tblProject set PRO_Description=?,PRO_ExterneID=?,PRO_Actief=? where PRO_ID=?",(project.Description,project.ExterneId,project.Active,project.ID))
+        self.Connection.commit()
+
+    def DeleteByID(self,projectID):
+        self.Cursor.execute("delete from tblProject where PRO_ID = ?",(str(projectID),))
+        self.Connection.commit()

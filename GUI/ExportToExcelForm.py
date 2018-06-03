@@ -17,13 +17,13 @@ class ExportToExcelForm:
         self.ExplanationLabel = Label(master,text='Export to excel between dates')
         self.ExplanationLabel.grid(row = 0,column = 0, columnspan = 2)
 
-        self.DateFromLabel = Label(master,text = 'Select FROM date (dd-mm-yyyy):')
+        self.DateFromLabel = Label(master,text = 'Select FROM date (yyyy-mm-dd):')
         self.DateFromLabel.grid(row=1,column=0)
 
         self.DateFromTextBox = Entry(master,textvariable = self.DateFrom)
         self.DateFromTextBox.grid(row=1,column = 1,sticky='NSEW')
 
-        self.DateFromLabel = Label(master,text = 'Select TO date (dd-mm-yyyy):')
+        self.DateFromLabel = Label(master,text = 'Select TO date (yyyy-mm-dd):')
         self.DateFromLabel.grid(row=2,column=0)
 
         self.DateToTextBox = Entry(master,textvariable = self.DateTo)
@@ -44,7 +44,7 @@ class ExportToExcelForm:
             file_path = filedialog.askdirectory()
             file_path = file_path + "/" + Globals.GetCurrentDay()
             blE.ExportToExcel(timeRecords,file_path)
-        self.Master.quit()
+            self.Master.quit()
 
     def Show(self):
         self.Master.mainloop()
