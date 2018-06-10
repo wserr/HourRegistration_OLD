@@ -8,11 +8,11 @@ from GUI.TimeRecordEditForm import *
 from GUI.ExportToExcelForm import *
 from GUI.ProjectListForm import *
 import os
+import configparser
 
 class MainScreen:
     def __init__(self,master,connection):
         self.dbConnection = connection
-        self.Cache = Cache.Cache(connection)
 
         self.Master = master
         self.Master.title("Overview")
@@ -83,6 +83,9 @@ class MainScreen:
         self.EventLogLabel = Label(master,textvariable = self.LastLogon)
         self.EventLogLabel.grid(row=1,column = 4)
 
+        self.ResetTimeTables()
+
+        self.Cache = Cache.Cache(connection)
         self.FillCombos()
 
         self.DaysCombo.bind("<<ComboboxSelected>>",self.DaysCombo_SelectedItemChanged)
@@ -90,6 +93,23 @@ class MainScreen:
         self.RecordsListBox.bind('<Double-1>', lambda x: self.ShowEditForm())
 
         self.SetButtonsEnabled()
+
+
+
+    def ResetTimeTables(self):
+        config = configparser.ConfigParser()
+        config.read('config.ini')
+        reset = int(config['RESET']['Reset'])
+        if reset == 1:
+            blPr = BLProject.BLProject(self.dbConnection)
+            blTr = BLTimeRecord.BLTimeRecord(self.dbConnection)
+            blPr.DeleteAll()
+            blTr.DeleteAll()
+            config['RESET']['Reset'] = '0'   # create
+
+            with open('config.ini', 'w') as configfile:    # save
+                config.write(configfile)
+            
 
     def OpenInOneNote(self):
         sel = self.RecordsListBox.curselection()[0]
@@ -136,6 +156,10 @@ class MainScreen:
             date = self.Cache.DayViews[index].Date
             self.Cache.RefreshTimeRecordsForDate(date)
             self.FillTimeRecords(self.Cache.TimeRecordViews)
+        else:
+            self.RecordsListBox.delete(0,END)
+
+
 
     def Show(self):
         self.Master.mainloop()
@@ -184,11 +208,11 @@ class MainScreen:
             messagebox.showerror('Error',errorMessage)
         else:
             index = self.DaysCombo.current()
-            self.DaysCombo.current(0)
             blTr = BLTimeRecord.BLTimeRecord(self.dbConnection)
             blTr.Create(timeRecord)
             self.Cache.RefreshAllStaticData()
             self.FillCombos()
+            if index==-1: index = 0
             self.DaysCombo.current(index)
             self.RefreshTimeRecords() 
 
@@ -207,6 +231,7 @@ class MainScreen:
         self.FillCombos()
         self.DaysCombo.current(index)
         self.RefreshTimeRecords()
+        self.SetButtonsEnabled()
     
     def CopyToCodex(self):
         self.Master.clipboard_clear()
@@ -278,10 +303,12 @@ class MainScreen:
         record = self.Cache.TimeRecordViews[indexRecordsListBox]
         bl.DeleteByID(record.ID)
         index = self.DaysCombo.current()
-        self.DaysCombo.current(0)
         self.Cache.RefreshAllStaticData()
         self.FillCombos()
-        self.DaysCombo.current(index)
+        if index==0: 
+            self.DaysCombo.set('')
+        else:
+            self.DaysCombo.current(index)
         self.RefreshTimeRecords()
         self.SetButtonsEnabled()
 
@@ -295,13 +322,18 @@ class MainScreen:
         indexDaysCombo = self.DaysCombo.current()
         indexRecordsListBox = self.RecordsListBox.curselection()
         current = Globals.GetCurrentDay()
-        date = self.Cache.DayViews[indexDaysCombo].Date
         if indexDaysCombo==-1:
             enableStop=False
             enableCopyToCodex=False
         else:
+            date = self.Cache.DayViews[indexDaysCombo].Date
             if not current==date:
                 enableStop=False
+            bl = BLTimeRecord.BLTimeRecord(self.dbConnection)
+            records = bl.GetAllForDate(date)
+            for record in records:
+                if record.StatusID==TimeRecordStatusEnum.TimeRecordStatusEnum.Gestart.value:
+                    enableCopyToCodex=False           
         if len(indexRecordsListBox) == 0:
             enableStop=False
             enableDelete = False
@@ -311,13 +343,7 @@ class MainScreen:
             trView = self.Cache.TimeRecordViews[indexRecordsListBox[0]]
             if trView.OneNoteLink == 'None' or trView.OneNoteLink == "":
                 enableOpenOneNote = False
-            
-        bl = BLTimeRecord.BLTimeRecord(self.dbConnection)
-        records = bl.GetAllForDate(date)
-        for record in records:
-            if record.StatusID==TimeRecordStatusEnum.TimeRecordStatusEnum.Gestart.value:
-                enableCopyToCodex=False
-    
+          
         self.SetButton(enableStop,self.StopRecordButton)
         self.SetButton(enableCopyToCodex,self.CopyToCodexButton)
         self.SetButton(enableDelete,self.DeleteRecordButton)

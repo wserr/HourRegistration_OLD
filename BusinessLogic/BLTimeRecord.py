@@ -46,4 +46,7 @@ class BLTimeRecord:
     def DeleteByID(self, id):
         self.DAL.DeleteByID(id)
 
+    def DeleteAll(self):
+        self.DAL.DeleteAll()
+
     

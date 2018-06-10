@@ -52,3 +52,7 @@ class DAProject:
     def DeleteByID(self,projectID):
         self.Cursor.execute("delete from tblProject where PRO_ID = ?",(str(projectID),))
         self.Connection.commit()
+
+    def DeleteAll(self):
+        self.Cursor.execute("delete from tblProject")
+        self.Connection.commit()       

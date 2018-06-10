@@ -53,4 +53,10 @@ class DATimeRecord:
         self.Cursor.execute("delete from tblTimeRecord where TRE_ID = ?",(str(id),))
         self.Connection.commit()
 
+    def DeleteAll(self):
+        self.Cursor.execute("delete from tblTimeRecord")
+        self.Connection.commit()
+
+
+
 

@@ -22,4 +22,7 @@ class BLProject:
         self.DAL.Update(project)
 
     def DeleteByID(self,projectID):
-        self.DAL.DeleteByID(projectID)    
+        self.DAL.DeleteByID(projectID)
+
+    def DeleteAll(self):
+        self.DAL.DeleteAll()
