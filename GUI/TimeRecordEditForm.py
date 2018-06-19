@@ -7,16 +7,17 @@ import datetime
 
 
 class TimeRecordEditForm:
-    def __init__(self,conn,timeRecord,Cache):
+    def __init__(self,conn,timeRecordView,Cache):
         master = Tk()
-        self.TimeRecord = timeRecord
-        self.RecordID = timeRecord.ID
-        self.StartDate=StringVar(master,value=timeRecord.StartHour)
-        self.EndDate=StringVar(master,timeRecord.EndHour)
-        self.ProjectValue=StringVar(master,timeRecord.Project)
-        self.RecordTypeValue=StringVar(master,timeRecord.RecordType)
-        self.DescriptionValue=StringVar(master,value=timeRecord.Description)
-        self.OneNoteValue = StringVar(master,value=timeRecord.OneNoteLink)
+        self.TimeRecord = timeRecordView
+        self.RecordID = timeRecordView.ID
+        self.StartDate=StringVar(master,value=timeRecordView.StartHour)
+        self.EndDate=StringVar(master,timeRecordView.EndHour)
+        self.ProjectValue=StringVar(master,timeRecordView.Project)
+        self.RecordTypeValue=StringVar(master,timeRecordView.RecordType)
+        self.DescriptionValue=StringVar(master,value=timeRecordView.Description)
+        self.OneNoteValue = StringVar(master,value=timeRecordView.OneNoteLink)
+        self.KmValue = StringVar(master,value=timeRecordView.Km)
         if self.OneNoteValue.get()=="None": self.OneNoteValue.set("")
         self.Connection = conn
         self.Master = master
@@ -59,11 +60,17 @@ class TimeRecordEditForm:
         self.OneNoteTextBox = Entry(master,textvariable = self.OneNoteValue)
         self.OneNoteTextBox.grid(row=5,column = 1,sticky='NSEW')
 
+        self.KmLabel = Label(master,text = 'Aantal km: ')
+        self.KmLabel.grid(row=6,column=0)
+        
+        self.KmTextBox = Entry(master,textvariable = self.KmValue)
+        self.KmTextBox.grid(row=6,column = 1,sticky='NSEW')
+
         self.OKButton = Button(master,text="OK",command = self.Confirm)
-        self.OKButton.grid(row = 6,column = 0,sticky='NSEW')
+        self.OKButton.grid(row = 7,column = 0,sticky='NSEW')
 
         self.CancelButton = Button(master, text="Cancel",command=self.Quit)
-        self.CancelButton.grid(row=6,column=1,sticky='NSEW')
+        self.CancelButton.grid(row=7,column=1,sticky='NSEW')
 
         self.FillCombos()
 
@@ -79,7 +86,7 @@ class TimeRecordEditForm:
             Tr.EndHour = self.GetDate(Tr.EndHour,self.EndDate.get())
         Tr.ProjectID = self.Cache.ActiveProjects[self.ProjectsCombo.current()].ID
         Tr.RecordTypeID = self.Cache.RecordTypes[self.RecordTypeCombo.current()].ID
-
+        Tr.Km = self.KmValue.get()
 
         oneNoteLink = self.OneNoteValue.get()
 

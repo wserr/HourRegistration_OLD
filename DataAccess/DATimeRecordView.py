@@ -10,7 +10,7 @@ class DATimeRecordView:
         rows = self.Cursor.fetchall()
         TimeRecords = []
         for row in rows:
-            timeRecord = TimeRecordView.TimeRecordView(row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],str(row[8]).replace("\n",""))
+            timeRecord = TimeRecordView.TimeRecordView(row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],str(row[8]),row[9])
             TimeRecords.append(timeRecord)
         return TimeRecords[0]
 
@@ -25,7 +25,7 @@ class DATimeRecordView:
         rows = self.Cursor.fetchall()
         TimeRecordViews = []
         for row in rows:
-            timeRecordview = TimeRecordView.TimeRecordView(row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],str(row[8]).replace("\n",""))
+            timeRecordview = TimeRecordView.TimeRecordView(row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],str(row[8]),row[9])
             TimeRecordViews.append(timeRecordview)
         return TimeRecordViews
 
@@ -34,6 +34,6 @@ class DATimeRecordView:
         rows = self.Cursor.fetchall()
         TimeRecordViews = []
         for row in rows:
-            timeRecordview = TimeRecordView.TimeRecordView(row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],str(row[8]).replace("\n",""))
+            timeRecordview = TimeRecordView.TimeRecordView(row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],str(row[8]),row[9])
             TimeRecordViews.append(timeRecordview)
         return TimeRecordViews

@@ -2,7 +2,7 @@ missing module named 'win32com.gen_py' - imported by win32com, c:\users\willem.s
 missing module named resource - imported by posix, C:\Users\willem.serruys\Documents\Github\HourRegistration\Main.py
 missing module named posix - imported by os, C:\Users\willem.serruys\Documents\Github\HourRegistration\Main.py
 missing module named _posixsubprocess - imported by subprocess, C:\Users\willem.serruys\Documents\Github\HourRegistration\Main.py
-missing module named 'org.python' - imported by pickle, C:\Users\willem.serruys\Documents\Github\HourRegistration\Main.py, xml.sax
+missing module named org - imported by pickle, C:\Users\willem.serruys\Documents\Github\HourRegistration\Main.py
 missing module named readline - imported by cmd, code, pdb, C:\Users\willem.serruys\Documents\Github\HourRegistration\Main.py
 excluded module named _frozen_importlib - imported by importlib, importlib.abc, C:\Users\willem.serruys\Documents\Github\HourRegistration\Main.py
 missing module named _frozen_importlib_external - imported by importlib._bootstrap, importlib, importlib.abc, C:\Users\willem.serruys\Documents\Github\HourRegistration\Main.py
@@ -14,5 +14,5 @@ missing module named vms_lib - imported by platform, C:\Users\willem.serruys\Doc
 missing module named termios - imported by tty, getpass, C:\Users\willem.serruys\Documents\Github\HourRegistration\Main.py
 missing module named grp - imported by shutil, tarfile, C:\Users\willem.serruys\Documents\Github\HourRegistration\Main.py
 missing module named pwd - imported by posixpath, shutil, tarfile, http.server, webbrowser, getpass, C:\Users\willem.serruys\Documents\Github\HourRegistration\Main.py, netrc
-missing module named org - imported by copy, C:\Users\willem.serruys\Documents\Github\HourRegistration\Main.py
 missing module named _dummy_threading - imported by dummy_threading, C:\Users\willem.serruys\Documents\Github\HourRegistration\Main.py
+missing module named 'org.python' - imported by copy, C:\Users\willem.serruys\Documents\Github\HourRegistration\Main.py, xml.sax

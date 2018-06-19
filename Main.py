@@ -4,6 +4,7 @@ from DataAccess.DAProject import DAProject
 from GUI.MainScreen import MainScreen
 from DataAccess.Log import Logger
 from tkinter import Tk,ttk
+import logging
 
 #Handle Project Init(ialisations
 root = Tk()
@@ -16,9 +17,8 @@ try:
     # projs = proj.GetAll()
     # for proj in projs:
     #     print(proj.Description)
-# except Exception as e:
-#     Logger.LogError(traceback.print_exception(exc_type, exc_value, exc_traceback,
-#                               limit=2))
+except Exception as e:
+    Logger.LogError(e,True)
 finally:
     databaseConnection.CloseConnection()
 

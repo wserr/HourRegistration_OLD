@@ -26,7 +26,9 @@ class Logger(object):
     # add the handlers to the logger
     logger.addHandler(fh)
     logger.addHandler(ch)
-       
+
+
+     
     #define methods for logging
     def LogInfo(mess):
         Logger.logger.info(mess)
@@ -34,8 +36,8 @@ class Logger(object):
     def LogWarning(mess):
         Logger.logger.warning(mess)
         
-    def LogError(mess):
-        Logger.logger.error(mess)
+    def LogError(mess,fatal=False):
+        Logger.logger.error(mess,exc_info=fatal)
 
 
         

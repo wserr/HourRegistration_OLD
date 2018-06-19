@@ -197,7 +197,7 @@ class MainScreen:
         blPR = BLProject.BLProject(self.dbConnection)
         recordType = blRT.GetRecordTypeIDFromDescription(self.RecordTypeValue.get())
         project = blPR.GetProjectIDFromDescription(self.ProjectValue.get())
-        timeRecord = TimeRecord.TimeRecord(None,Globals.GetCurrentTime(),None,project,recordType,self.DescriptionValue.get(),TimeRecordStatusEnum.TimeRecordStatusEnum.Gestart.value,0,None)
+        timeRecord = TimeRecord.TimeRecord(None,Globals.GetCurrentTime(),None,project,recordType,self.DescriptionValue.get(),TimeRecordStatusEnum.TimeRecordStatusEnum.Gestart.value,0,None,None)
         
         valid = TimeRecordValidation.TimeRecordValidation()
         validationMessage = valid.ValidateOnCreation(timeRecord)
@@ -276,8 +276,12 @@ class MainScreen:
                  string1 = filler.join(list1)
                  string2 = filler.join(list2)
              else:
-                 string1 = item5   
-             sequence = (item1,"\t","\t","\t",item2,"\t","\t","\t","\t","\t",item3,"\t",item4,"\t",string1,"\t",string2,"\n")
+                 string1 = item5
+             km = "\t"
+             if not item.Km is None:
+                 km = str(item.Km) + "\t"
+
+             sequence = (item1,"\t","\t","\t",item2,"\t","\t","\t",km,"\t",item3,"\t",item4,"\t",string1,"\t",string2,"\n")
              self.Master.clipboard_append(s.join(sequence))
 
     def ShowEditForm(self):
