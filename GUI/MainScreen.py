@@ -310,6 +310,7 @@ class MainScreen:
         index = self.DaysCombo.current()
         self.Cache.RefreshAllStaticData()
         self.FillCombos()
+        #Hier schiet nog 1 record over; het is nog niet verwijderd uit Cache op dit moment
         if len(self.Cache.TimeRecordViews)==1: 
             self.DaysCombo.set('')
         else:
