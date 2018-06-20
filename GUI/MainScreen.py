@@ -301,6 +301,7 @@ class MainScreen:
         excel.Show()
         excel.Master.destroy()
 
+
     def DeleteRecord(self):
         bl = BLTimeRecord.BLTimeRecord(self.dbConnection)
         indexRecordsListBox = self.RecordsListBox.curselection()[0]
@@ -309,7 +310,7 @@ class MainScreen:
         index = self.DaysCombo.current()
         self.Cache.RefreshAllStaticData()
         self.FillCombos()
-        if index==0: 
+        if len(self.Cache.TimeRecordViews)==1: 
             self.DaysCombo.set('')
         else:
             self.DaysCombo.current(index)
