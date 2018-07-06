@@ -11,24 +11,15 @@ class BLTimeRecord:
         return self.DAL.GetAll()
 
     def Create(self,timeRecord):
-        self.DAL.Create(timeRecord)
+        updatedTimeRecord = self.UpdateTimeDifference(timeRecord)
+        self.DAL.Create(updatedTimeRecord)
 
     def GetById(self,Id):
         return self.DAL.GetByID(Id)
     
     def Update(self,timeRecord):
-        s1Time = time.strptime(timeRecord.StartHour, "%Y-%m-%d %H:%M")
-
-        if not timeRecord.EndHour is None:
-            s2Time = time.strptime(timeRecord.EndHour,"%Y-%m-%d %H:%M")
-
-            s1TimeSeconds = time.mktime(s1Time)
-            s2TimeSeconds = time.mktime(s2Time)
-
-            difference = int((s2TimeSeconds-s1TimeSeconds)/60)
-            timeRecord.Minutes = difference
-
-        self.DAL.Update(timeRecord)
+        updatedTimeRecord = self.UpdateTimeDifference(timeRecord)
+        self.DAL.Update(updatedTimeRecord)
 
     def GetByIDList(self,Ids):
         return self.DAL.GetByIDList(Ids)
@@ -48,5 +39,18 @@ class BLTimeRecord:
 
     def DeleteAll(self):
         self.DAL.DeleteAll()
+
+    def UpdateTimeDifference(self,timeRecord):
+        s1Time = time.strptime(timeRecord.StartHour, "%Y-%m-%d %H:%M")
+
+        if not timeRecord.EndHour is None:
+            s2Time = time.strptime(timeRecord.EndHour,"%Y-%m-%d %H:%M")
+
+            s1TimeSeconds = time.mktime(s1Time)
+            s2TimeSeconds = time.mktime(s2Time)
+
+            difference = int((s2TimeSeconds-s1TimeSeconds)/60)
+            timeRecord.Minutes = difference
+        return timeRecord
 
     

@@ -1,7 +1,7 @@
 from tkinter import *
 from tkinter import ttk,messagebox
 from BusinessLogic import BLProject,BLRecordType,BLTimeRecordView,BLTimeRecord,TimeRecordValidation,BLDayView, Cache, Globals
-from BusinessEntities import TimeRecord,TimeRecordStatusEnum,DayView
+from BusinessEntities import TimeRecord,TimeRecordStatusEnum,DayView,TimeRecordStatusEnum
 import time
 import datetime
 
@@ -11,6 +11,10 @@ class TimeRecordEditForm:
         master = Tk()
         self.TimeRecord = timeRecordView
         self.RecordID = timeRecordView.ID
+        if self.TimeRecord.Project == None:
+            self.IsNew = True
+        else:
+            self.IsNew = False
         self.StartDate=StringVar(master,value=timeRecordView.StartHour)
         self.EndDate=StringVar(master,timeRecordView.EndHour)
         self.ProjectValue=StringVar(master,timeRecordView.Project)
@@ -84,7 +88,7 @@ class TimeRecordEditForm:
         Tr.StartHour = self.TimeRecord.Date
         Tr.StartHour = self.GetDate(Tr.StartHour,self.StartDate.get())
         if not self.EndDate.get() =='':           
-            Tr.EndHour = self.GetDate(Tr.EndHour,self.EndDate.get())
+            Tr.EndHour = self.GetDate(Tr.StartHour,self.EndDate.get())
         Tr.ProjectID = self.Cache.ActiveProjects[self.ProjectsCombo.current()].ID
         Tr.RecordTypeID = self.Cache.RecordTypes[self.RecordTypeCombo.current()].ID
         Tr.Km = self.KmValue.get()
@@ -103,8 +107,11 @@ class TimeRecordEditForm:
 
         Tr.OneNoteLink = oneNoteLink
 
-
-        blTr.Update(Tr)
+        if not self.IsNew:
+            blTr.Update(Tr)
+        else:
+            Tr.StatusID = TimeRecordStatusEnum.TimeRecordStatusEnum.Gestopt.value
+            blTr.Create(Tr)
         self.Master.quit()
 
 

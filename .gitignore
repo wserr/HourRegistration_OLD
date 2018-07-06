@@ -6,3 +6,4 @@ cat .gitignore
 /BusinessEntities/__pycache__/
 /BusinessLogic/__pycache__/
 /DataAccess/__pycache__/
+/GUI/__pycache__/
