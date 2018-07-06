@@ -28,7 +28,10 @@ class DATimeRecord:
         for row in rows:
             timeRecord = TimeRecord.TimeRecord(row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9])
             TimeRecords.append(timeRecord)
-        return TimeRecords[0]
+        if len(TimeRecords)> 0:
+            return TimeRecords[0]
+        else:
+            return TimeRecord.TimeRecord(None,None,None,None,None,None,None,None,None,None)
 
     def Create(self,timeRecord):
         self.Cursor.execute("INSERT INTO tblTimeRecord (TRE_StartHour,TRE_EndHour,TRE_ProjectID,TRE_RecordTypeID,TRE_Description,TRE_StatusID,TRE_Minutes,TRE_OneNote,TRE_Km) values(?,?,?,?,?,?,?,?,?)",

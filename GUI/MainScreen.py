@@ -2,7 +2,7 @@
 from tkinter import *
 from tkinter import ttk,messagebox
 from BusinessLogic import BLProject,BLRecordType,BLTimeRecordView,BLTimeRecord,TimeRecordValidation,BLDayView, Cache, Globals
-from BusinessEntities import TimeRecord,TimeRecordStatusEnum,DayView
+from BusinessEntities import TimeRecord,TimeRecordStatusEnum,DayView,TimeRecordView
 import time
 from GUI.TimeRecordEditForm import *
 from GUI.ExportToExcelForm import *
@@ -13,6 +13,7 @@ import configparser
 class MainScreen:
     def __init__(self,master,connection):
         self.dbConnection = connection
+        self.Cache = Cache.Cache(connection)
 
         self.Master = master
         self.Master.title("Overview")
@@ -65,6 +66,11 @@ class MainScreen:
         self.OneNoteIcon = PhotoImage(file=".\\Resources\\onenote.png")
         self.OneNoteButton.config(image=self.OneNoteIcon,width="32",height="32")
 
+        self.AddTimeRecordButton = Button(master,text = "AddTimeRecordButton",command = self.ShowNewEditForm)
+        self.AddTimeRecordButton.grid(row=3,column=2,sticky="NSEW")
+        self.AddTimeRecordIcon = PhotoImage(file=".\\Resources\\application_add.png")
+        self.AddTimeRecordButton.config(image=self.AddTimeRecordIcon,width="32",height="32")
+
         self.ProjectsCombo = ttk.Combobox(master,width = 100,textvariable = self.ProjectValue)
         self.ProjectsCombo.grid(row = 0,column = 3,sticky='NSEW')
 
@@ -85,7 +91,6 @@ class MainScreen:
 
         self.ResetTimeTables()
 
-        self.Cache = Cache.Cache(connection)
         self.FillCombos()
 
         self.DaysCombo.bind("<<ComboboxSelected>>",self.DaysCombo_SelectedItemChanged)
@@ -295,6 +300,21 @@ class MainScreen:
         self.DaysCombo.current(index)
         self.RefreshTimeRecords()
         edit.Master.destroy()
+
+    def ShowNewEditForm(self):
+        tr = TimeRecordView.TimeRecordView(None,None,None,None,None,None,None,None,None,None)
+        index = self.DaysCombo.current()
+        tr.Date = self.Cache.TimeRecords[index].StartHour
+        edit = TimeRecordEditForm(self.dbConnection,tr,self.Cache)
+        edit.Show()
+        index = self.DaysCombo.current()
+        self.DaysCombo.current(0)
+        self.Cache.RefreshAllStaticData()
+        self.FillCombos()
+        self.DaysCombo.current(index)
+        self.RefreshTimeRecords()
+        edit.Master.destroy()
+
 
     def ExportToExcel(self):
         excel = ExportToExcelForm(self.dbConnection)

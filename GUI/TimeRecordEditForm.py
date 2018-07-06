@@ -81,6 +81,7 @@ class TimeRecordEditForm:
         blTr = BLTimeRecord.BLTimeRecord(self.Connection)
         Tr = blTr.GetById(self.RecordID)
         Tr.Description = self.DescriptionValue.get()
+        Tr.StartHour = self.TimeRecord.Date
         Tr.StartHour = self.GetDate(Tr.StartHour,self.StartDate.get())
         if not self.EndDate.get() =='':           
             Tr.EndHour = self.GetDate(Tr.EndHour,self.EndDate.get())
