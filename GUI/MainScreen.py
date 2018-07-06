@@ -121,14 +121,6 @@ class MainScreen:
         timeRecordView = self.Cache.TimeRecordViews[sel]
         os.system("start "+timeRecordView.OneNoteLink)
 
-    def OpenProjectListForm(self):
-        projectListForm = ProjectListForm(self.Cache,self.dbConnection)
-        projectListForm.Show()     
-        self.Cache.RefreshAllStaticData()
-        self.FillCombos()
-        projectListForm.Master.destroy() 
-
-
     def CopyRecord(self):
         blTr = BLTimeRecord.BLTimeRecord(self.dbConnection)
         sel = self.RecordsListBox.curselection()[0]
@@ -315,6 +307,12 @@ class MainScreen:
         self.RefreshTimeRecords()
         edit.Master.destroy()
 
+    def OpenProjectListForm(self):
+        projectListForm = ProjectListForm(self.Cache,self.dbConnection)
+        projectListForm.Show()     
+        self.Cache.RefreshAllStaticData()
+        self.FillCombos()
+        projectListForm.Master.destroy() 
 
     def ExportToExcel(self):
         excel = ExportToExcelForm(self.dbConnection)

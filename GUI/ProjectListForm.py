@@ -13,7 +13,7 @@ class ProjectListForm:
 
         master = Tk()
         self.Master = master
-        master.protocol('WM_DELETE_WINDOW', self.CloseWindow)
+        master.protocol('WM_DELETE_WINDOW', self.Quit)
         self.Master.title("Projects")
 
         self.AddButton = Button(master,text='Add',command=self.Add)
@@ -35,6 +35,9 @@ class ProjectListForm:
 
     def CloseWindow(self):
         self.Master.quit()
+
+    def Quit(self):
+        self.Master.destroy()
 
     def Show(self):
         self.Master.mainloop()

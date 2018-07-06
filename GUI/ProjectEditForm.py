@@ -12,6 +12,7 @@ class ProjectEditForm:
         self.Connection = conn
         self.ProjectOmschrijvingVar = StringVar(master)
         self.ProjectIDVar = StringVar(master)
+        self.Button = StringVar(master)
 
         self.Master = master
         self.Master.title("Project Edit Form")
@@ -22,6 +23,9 @@ class ProjectEditForm:
             self.BusinessEntity = project
             self.ProjectOmschrijvingVar.set(project.Description)
             self.ProjectIDVar.set(project.ExterneId)
+            if str(self.BusinessEntity.Button) == "None": 
+                self.Button.set("") 
+            else: self.Button.set(self.BusinessEntity.Button)
 
         self.ProjectOmschrijvingLabel = Label(master,text = 'Project Omschrijving: ')
         self.ProjectOmschrijvingLabel.grid(row=0,column=0)
@@ -35,12 +39,17 @@ class ProjectEditForm:
         self.ProjectID = Entry(master,textvariable = self.ProjectIDVar)
         self.ProjectID.grid(row=1,column=1)
 
+        self.ProjectButtonLabel = Label(master,text = 'Project Button: ')
+        self.ProjectButtonLabel.grid(row=5,column=0,sticky = 'NSEW')
+
+        self.ProjectButton = Entry(master,textvariable = self.Button)
+        self.ProjectButton.grid(row=5,column=1,sticky = 'NSEW')
 
         self.OKButton = Button(master,text="OK",command = self.Confirm)
-        self.OKButton.grid(row = 5,column = 0,sticky='NSEW')
+        self.OKButton.grid(row = 6,column = 0,sticky='NSEW')
 
         self.CancelButton = Button(master, text="Cancel",command = self.Quit)
-        self.CancelButton.grid(row=5,column=1,sticky='NSEW')
+        self.CancelButton.grid(row=6,column=1,sticky='NSEW')
 
 
     def Show(self):
@@ -51,13 +60,14 @@ class ProjectEditForm:
 
     def Confirm(self):
         if self.BusinessEntity==None:
-            project = Project.Project(None,self.ProjectOmschrijvingVar.get(),self.ProjectIDVar.get())
+            project = Project.Project(None,self.ProjectOmschrijvingVar.get(),self.ProjectIDVar.get(),self.Button.get(),True)
             bl = BLProject.BLProject(self.Connection)
             bl.Create(project)
         else:
             project = self.BusinessEntity
             project.Description = self.ProjectOmschrijvingVar.get()
             project.ExterneId = self.ProjectIDVar.get()
+            project.Button = self.Button.get()
             bl = BLProject.BLProject(self.Connection)
             bl.Update(project)  
         self.Master.quit()          

@@ -14,7 +14,7 @@ class DAProject:
         rows = self.Cursor.fetchall()
         Projects = []
         for row in rows:
-            project = Project.Project(row[0],row[1],row[2],row[3])
+            project = Project.Project(row[0],row[1],row[2],row[3],row[4])
             Projects.append(project)
         return Projects
 
@@ -41,12 +41,12 @@ class DAProject:
             return result[0] 
 
     def Create(self,project):
-        self.Cursor.execute("INSERT INTO tblProject (PRO_Description,PRO_ExterneID) values(?,?)",
-        (project.Description,project.ExterneId))
+        self.Cursor.execute("INSERT INTO tblProject (PRO_Description,PRO_ExterneID,PRO_Button) values(?,?,?)",
+        (project.Description,project.ExterneId,project.Button))
         self.Connection.commit()
 
     def Update(self, project):
-        self.Cursor.execute("Update tblProject set PRO_Description=?,PRO_ExterneID=?,PRO_Actief=? where PRO_ID=?",(project.Description,project.ExterneId,project.Active,project.ID))
+        self.Cursor.execute("Update tblProject set PRO_Description=?,PRO_ExterneID=?,PRO_Button = ?, PRO_Actief=? where PRO_ID=?",(project.Description,project.ExterneId,project.Button,project.Active,project.ID))
         self.Connection.commit()
 
     def DeleteByID(self,projectID):
