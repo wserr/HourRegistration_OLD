@@ -3,7 +3,7 @@ cat .gitignore
 /dist/
 /build/
 /__pycache__/
-/BusinessEntities/__pycache__/
-/BusinessLogic/__pycache__/
-/DataAccess/__pycache__/
-/GUI/__pycache__/
+BusinessEntities/__pycache__/
+BusinessLogic/__pycache__/
+DataAccess/__pycache__/
+GUI/__pycache__/
