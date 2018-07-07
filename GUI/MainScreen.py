@@ -3,12 +3,15 @@ from tkinter import *
 from tkinter import ttk,messagebox
 from BusinessLogic import BLProject,BLRecordType,BLTimeRecordView,BLTimeRecord,TimeRecordValidation,BLDayView, Cache, Globals
 from BusinessEntities import TimeRecord,TimeRecordStatusEnum,DayView,TimeRecordView
+from DataAccess import DAController
 import time
 from GUI.TimeRecordEditForm import *
 from GUI.ExportToExcelForm import *
 from GUI.ProjectListForm import *
 import os
 import configparser
+import threading
+import queue
 
 class MainScreen:
     def __init__(self,master,connection):
@@ -99,7 +102,47 @@ class MainScreen:
 
         self.SetButtonsEnabled()
 
+        self.Queue = queue.Queue(10)
+        controllerThread = threading.Thread(target=self.ctrl,args=(self.Queue,))
+        controllerThread.start()
 
+        self.GetQueue()
+
+    def ctrl(self,queue):
+        dac = DAController.DAController(queue)
+        dac.Listen()
+
+    def GetQueue(self):
+        if not self.Queue.empty():
+            queue = self.Queue.get()
+            blPr = BLProject.BLProject(self.dbConnection)
+            project = blPr.GetByButton(queue)
+            if project is not None:
+                print(project.Description)
+                recordType = 1
+                blTr = BLTimeRecord.BLTimeRecord(self.dbConnection)
+                for record in self.Cache.TimeRecords:
+                    if record.StatusID == TimeRecordStatusEnum.TimeRecordStatusEnum.Gestart.value:
+                        record.StatusID = TimeRecordStatusEnum.TimeRecordStatusEnum.Gestopt.value
+                        record.EndHour = Globals.GetCurrentTime()
+                        blTr.Update(record)
+                timeRecord = TimeRecord.TimeRecord(None,Globals.GetCurrentTime(),None,project.ID,recordType,'Automatically generated',TimeRecordStatusEnum.TimeRecordStatusEnum.Gestart.value,0,None,None)
+                valid = TimeRecordValidation.TimeRecordValidation()
+                validationMessage = valid.ValidateOnCreation(timeRecord)
+                if  not len(validationMessage) == 0:
+                    errorMessage = ''
+                    for i in validationMessage:
+                        errorMessage = errorMessage + i + '\n'
+                    messagebox.showerror('Error',errorMessage)
+                else:
+                    index = self.DaysCombo.current()
+                    blTr.Create(timeRecord)
+                    self.Cache.RefreshAllStaticData()
+                    self.FillCombos()
+                    if index==-1: index = 0
+                    self.DaysCombo.current(index)
+                    self.RefreshTimeRecords() 
+        self.Master.after(500, self.GetQueue)
 
     def ResetTimeTables(self):
         config = configparser.ConfigParser()
@@ -155,8 +198,6 @@ class MainScreen:
             self.FillTimeRecords(self.Cache.TimeRecordViews)
         else:
             self.RecordsListBox.delete(0,END)
-
-
 
     def Show(self):
         self.Master.mainloop()

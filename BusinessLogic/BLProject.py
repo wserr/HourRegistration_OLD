@@ -26,3 +26,7 @@ class BLProject:
 
     def DeleteAll(self):
         self.DAL.DeleteAll()
+
+
+    def GetByButton(self, buttonID,includeNotActive=False):
+        return self.DAL.GetByButton(buttonID,includeNotActive)

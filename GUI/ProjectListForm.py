@@ -33,8 +33,8 @@ class ProjectListForm:
 
         self.FillProjects(self.Cache.AllProjects)
 
-    def CloseWindow(self):
-        self.Master.quit()
+    # def CloseWindow(self):
+    #     self.Master.quit()
 
     def Quit(self):
         self.Master.destroy()

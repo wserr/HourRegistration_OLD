@@ -55,4 +55,15 @@ class DAProject:
 
     def DeleteAll(self):
         self.Cursor.execute("delete from tblProject")
-        self.Connection.commit()       
+        self.Connection.commit()
+
+    def GetByButton(self, buttonID,includeNotActive=False):
+        if includeNotActive==False:
+            self.Cursor.execute("SELECT * FROM tblProject where PRO_Actief = 1 and PRO_Button = ?",(buttonID,))
+        else:
+            self.Cursor.execute("SELECT * FROM tblProject where PRO_Button = ?",(buttonID,))
+        rows = self.Cursor.fetchall()
+        project = None
+        for row in rows:
+            project = Project.Project(row[0],row[1],row[2],row[3],row[4])
+        return project          
