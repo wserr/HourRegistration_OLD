@@ -5,3 +5,4 @@ cat .gitignore
 /build/
 /__pycache__/
 
+*.pyc
