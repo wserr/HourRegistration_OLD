@@ -8,9 +8,9 @@ class DAProject:
 
     def GetAll(self,includeNotActive):
         if includeNotActive==False:
-            self.Cursor.execute("SELECT * FROM tblProject where PRO_Actief = 1")
+            self.Cursor.execute("SELECT * FROM tblProject where PRO_Actief = 1 ORDER BY PRO_Description")
         else:
-            self.Cursor.execute("SELECT * FROM tblProject")
+            self.Cursor.execute("SELECT * FROM tblProject ORDER BY PRO_Description")
         rows = self.Cursor.fetchall()
         Projects = []
         for row in rows:

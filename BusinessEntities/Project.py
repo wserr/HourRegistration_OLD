@@ -7,4 +7,7 @@ class Project:
         self.Button = button
   
     def __str__(self):
-        return self.Description
+        addString = ''
+        if not str(self.Button) == 'None':
+            addString = '       ' + str(self.Button)
+        return self.Description + addString

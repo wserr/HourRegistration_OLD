@@ -85,8 +85,8 @@ class TimeRecordEditForm:
         blTr = BLTimeRecord.BLTimeRecord(self.Connection)
         Tr = blTr.GetById(self.RecordID)
         Tr.Description = self.DescriptionValue.get()
-        Tr.StartHour = self.TimeRecord.Date
-        Tr.StartHour = self.GetDate(Tr.StartHour,self.StartDate.get())
+        timeString = Globals.ConvertToAmericanDate(self.TimeRecord.Date) + ' 00:00'
+        Tr.StartHour = self.GetDate(timeString,self.StartDate.get())
         if not self.EndDate.get() =='':           
             Tr.EndHour = self.GetDate(Tr.StartHour,self.EndDate.get())
         Tr.ProjectID = self.Cache.ActiveProjects[self.ProjectsCombo.current()].ID
@@ -103,7 +103,6 @@ class TimeRecordEditForm:
             oneNoteLink = ""
             messagebox.showerror('Error',"No valid link found")
             return
-
 
         Tr.OneNoteLink = oneNoteLink
 

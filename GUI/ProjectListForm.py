@@ -33,6 +33,8 @@ class ProjectListForm:
 
         self.FillProjects(self.Cache.AllProjects)
 
+        self.ProjectsListBox.bind('<Double-1>', lambda x: self.Edit())
+
     # def CloseWindow(self):
     #     self.Master.quit()
 

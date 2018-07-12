@@ -5,24 +5,21 @@ from DataAccess.DAController import DAController
 from GUI.MainScreen import MainScreen
 from DataAccess.Log import Logger
 from tkinter import Tk,ttk
-import logging
-import threading
 
-#Handle Project Init(ialisations
+
+
+#Handle Project Initialisations
 root = Tk()
 databaseConnection = DataBaseConnection()
 
 try:
-
+    Logger.LogInfo('Application Starting...')
     mainScreen = MainScreen(root,databaseConnection)
     mainScreen.Show()
-    # proj = DAProject(databaseConnection.Connection)
-    # projs = proj.GetAll()
-    # for proj in projs:
-    #     print(proj.Description)
 except Exception as e:
-    Logger.LogError(e,True)
+    Logger.LogError(str(e),True)
 finally:
+    Logger.LogInfo('Application Stopping...')
     databaseConnection.CloseConnection()
 
 

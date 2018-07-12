@@ -31,13 +31,13 @@ class Logger(object):
      
     #define methods for logging
     def LogInfo(mess):
-        Logger.logger.info(mess)
+        Logger.logger.info(mess + '\n')
         
     def LogWarning(mess):
-        Logger.logger.warning(mess)
+        Logger.logger.warning(mess + '\n')
         
     def LogError(mess,fatal=False):
-        Logger.logger.error(mess,exc_info=fatal)
+        Logger.logger.error(mess + '\n',exc_info=fatal)
 
 
         

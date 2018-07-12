@@ -1,7 +1,9 @@
 from DataAccess import DATimeRecord
-from BusinessEntities import TimeRecord
+from BusinessEntities import TimeRecord, TimeRecordStatusEnum
+from BusinessLogic import Globals
 import sqlite3
 import time
+
 
 class BLTimeRecord:
     def __init__(self,conn):
@@ -52,5 +54,13 @@ class BLTimeRecord:
             difference = int((s2TimeSeconds-s1TimeSeconds)/60)
             timeRecord.Minutes = difference
         return timeRecord
+
+    def CopyTimeRecord(self, timeRecord):
+        timeRecord.ID = None
+        timeRecord.StartHour = Globals.GetCurrentTime()
+        timeRecord.EndHour = None
+        timeRecord.StatusID = TimeRecordStatusEnum.TimeRecordStatusEnum.Gestart.value
+        timeRecord.Minutes = 0
+        self.Create(timeRecord)
 
     

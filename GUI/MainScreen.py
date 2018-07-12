@@ -1,4 +1,6 @@
 
+#Import Modules
+
 from tkinter import *
 from tkinter import ttk,messagebox
 from BusinessLogic import BLProject,BLRecordType,BLTimeRecordView,BLTimeRecord,TimeRecordValidation,BLDayView, Cache, Globals
@@ -9,23 +11,33 @@ from GUI.TimeRecordEditForm import *
 from GUI.ExportToExcelForm import *
 from GUI.ProjectListForm import *
 import os
-import configparser
 import threading
 import queue
+from DataAccess.Log import Logger
 
 class MainScreen:
     def __init__(self,master,connection):
+        #Reset Database if necessary
+        Globals.ClearUserTables(connection)
+
+        #Main Window
+        self.Master = master
+        self.Master.title("Hour Registration")
+
+        #Database connection
         self.dbConnection = connection
+
+        #Initialize Cache
         self.Cache = Cache.Cache(connection)
 
-        self.Master = master
-        self.Master.title("Overview")
-
+        #Initialize String Vars
         self.RecordTypeValue = StringVar()
         self.ProjectValue = StringVar()
         self.DescriptionValue = StringVar()
         self.LastLogon = StringVar()
         self.LastLogon.set(Globals.GetLastLogon())
+
+        #Designer
         self.DaysCombo = ttk.Combobox(master)
         self.DaysCombo.grid(row=0,column=0,sticky='NSEW',columnspan=3)
 
@@ -92,27 +104,27 @@ class MainScreen:
         self.EventLogLabel = Label(master,textvariable = self.LastLogon)
         self.EventLogLabel.grid(row=1,column = 4)
 
-        self.ResetTimeTables()
-
-        self.FillCombos()
-
         self.DaysCombo.bind("<<ComboboxSelected>>",self.DaysCombo_SelectedItemChanged)
         self.RecordsListBox.bind("<<ListboxSelect>>",self.RecordsListBox_SelectedItemChanged)
         self.RecordsListBox.bind('<Double-1>', lambda x: self.ShowEditForm())
+        #End Designer
 
+        #Set Form Controls
+        self.FillCombos()
         self.SetButtonsEnabled()
 
         self.Queue = queue.Queue(10)
         controllerThread = threading.Thread(target=self.ctrl,args=(self.Queue,))
         controllerThread.start()
+        Logger.LogInfo(controllerThread.getName() + ' started.')
 
-        self.GetQueue()
+        self.CheckForUpdatesFromController()
 
     def ctrl(self,queue):
         dac = DAController.DAController(queue)
         dac.Listen()
 
-    def GetQueue(self):
+    def CheckForUpdatesFromController(self):
         if not self.Queue.empty():
             queue = self.Queue.get()
             blPr = BLProject.BLProject(self.dbConnection)
@@ -142,22 +154,7 @@ class MainScreen:
                     if index==-1: index = 0
                     self.DaysCombo.current(index)
                     self.RefreshTimeRecords() 
-        self.Master.after(500, self.GetQueue)
-
-    def ResetTimeTables(self):
-        config = configparser.ConfigParser()
-        config.read('config.ini')
-        reset = int(config['RESET']['Reset'])
-        if reset == 1:
-            blPr = BLProject.BLProject(self.dbConnection)
-            blTr = BLTimeRecord.BLTimeRecord(self.dbConnection)
-            blPr.DeleteAll()
-            blTr.DeleteAll()
-            config['RESET']['Reset'] = '0'   # create
-
-            with open('config.ini', 'w') as configfile:    # save
-                config.write(configfile)
-            
+        self.Master.after(500, self.CheckForUpdatesFromController)
 
     def OpenInOneNote(self):
         sel = self.RecordsListBox.curselection()[0]
@@ -169,19 +166,17 @@ class MainScreen:
         sel = self.RecordsListBox.curselection()[0]
         timeRecordView = self.Cache.TimeRecordViews[sel]
         timeRecord = blTr.GetById(timeRecordView.ID)
-        timeRecord.ID = None
-        timeRecord.StartHour = Globals.GetCurrentTime()
-        timeRecord.EndHour = None
-        timeRecord.StatusID = TimeRecordStatusEnum.TimeRecordStatusEnum.Gestart.value
-        timeRecord.Minutes = 0
-        blTr.Create(timeRecord)
+        blTr.CopyTimeRecord(timeRecord)
+        self.Refresh()
+
+    def Refresh(self):
         index = self.DaysCombo.current()
         self.DaysCombo.current(0)
         self.Cache.RefreshAllStaticData()
         self.FillCombos()
         self.DaysCombo.current(index)
         self.RefreshTimeRecords() 
-        self.SetButtonsEnabled()       
+        self.SetButtonsEnabled()
       
     def RecordsListBox_SelectedItemChanged(self,eventObject):
         self.SetButtonsEnabled()
@@ -273,54 +268,10 @@ class MainScreen:
     
     def CopyToCodex(self):
         self.Master.clipboard_clear()
-        blTr = BLTimeRecord.BLTimeRecord(self.dbConnection)
         index = self.DaysCombo.current()
         date = self.Cache.DayViews[index].Date
-        timeRecords = blTr.GetAllForDate(date)
-
-        blPr = BLProject.BLProject(self.dbConnection)
-        blRt = BLRecordType.BLRecordType(self.dbConnection)
-        for item in timeRecords:       
-             item1 = blPr.GetProjectExterneID(item.ProjectID)
-             item2 = blRt.GetRecordTypeExterneID(item.RecordTypeID)
-             s1Time = time.strptime(item.StartHour, "%Y-%m-%d %H:%M")
-             s2Time = time.strptime(item.EndHour,"%Y-%m-%d %H:%M")
-             item3 = time.strftime("%H:%M",s1Time)
-             item4 = time.strftime("%H:%M",s2Time)
-             item5 = item.Description
-             s="" 
-
-             string1 = ""
-             string2 = ""
-             item.StatusID = TimeRecordStatusEnum.TimeRecordStatusEnum.Gekopieerd.value
-             blTr.Update(item)
-             self.RefreshTimeRecords()
-             if len(item5) > 30:
-                 items = item5.split(" ")
-                 countChar = 0
-
-                 indexToSplit = 0
-                 for i in range(0,len(items)):
-                    countChar =countChar + len(items[i])
-                    if i>30:
-                        indexToSplit = i-1
-                        break
-                 filler = " "
-                 if indexToSplit == 0:
-                     indexToSplit = 30
-                     filler = ""
-                 list1 = item5[0:indexToSplit]
-                 list2 = item5[indexToSplit:]
-                 string1 = filler.join(list1)
-                 string2 = filler.join(list2)
-             else:
-                 string1 = item5
-             km = "\t"
-             if not item.Km is None:
-                 km = str(item.Km) + "\t"
-
-             sequence = (item1,"\t","\t","\t",item2,"\t","\t","\t",km,"\t",item3,"\t",item4,"\t",string1,"\t",string2,"\n")
-             self.Master.clipboard_append(s.join(sequence))
+        self.Master.clipboard_append(Globals.CopyToCodex(self.dbConnection,date))
+        self.RefreshTimeRecords()
 
     def ShowEditForm(self):
         timeRecordView = self.Cache.TimeRecordViews[self.RecordsListBox.curselection()[0]]    
@@ -360,7 +311,6 @@ class MainScreen:
         excel.Show()
         excel.Master.destroy()
 
-
     def DeleteRecord(self):
         bl = BLTimeRecord.BLTimeRecord(self.dbConnection)
         indexRecordsListBox = self.RecordsListBox.curselection()[0]
@@ -376,7 +326,6 @@ class MainScreen:
             self.DaysCombo.current(index)
         self.RefreshTimeRecords()
         self.SetButtonsEnabled()
-
 
     def SetButtonsEnabled(self):
         enableStop = True

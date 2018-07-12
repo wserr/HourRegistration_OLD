@@ -8,7 +8,7 @@ class DataBaseConnection():
         config.read('config.ini')
         try:
             self.Connection = sqlite3.connect(config['DEFAULT']['DataBaseName'])
-            Logger.LogInfo('DataBase Connection Made')
+            Logger.LogInfo('DataBase Connection Established')
         except Exception as e:
             Logger.LogError(str(e))
 

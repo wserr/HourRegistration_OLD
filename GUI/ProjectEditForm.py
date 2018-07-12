@@ -2,6 +2,8 @@ from tkinter import *
 from tkinter import ttk,messagebox
 from BusinessLogic import BLProject,BLRecordType,BLTimeRecordView,BLTimeRecord,TimeRecordValidation,BLDayView, Cache, Globals
 from BusinessEntities import TimeRecord,TimeRecordStatusEnum,DayView,Project
+import sqlite3
+from DataAccess.Log import Logger
 # import time
 # import datetime
 
@@ -52,6 +54,7 @@ class ProjectEditForm:
         self.CancelButton.grid(row=6,column=1,sticky='NSEW')
 
 
+
     def Show(self):
         self.Master.mainloop()
 
@@ -59,18 +62,34 @@ class ProjectEditForm:
         self.Master.destroy()
 
     def Confirm(self):
-        if self.BusinessEntity==None:
-            project = Project.Project(None,self.ProjectOmschrijvingVar.get(),self.ProjectIDVar.get(),self.Button.get(),True)
-            bl = BLProject.BLProject(self.Connection)
-            bl.Create(project)
-        else:
-            project = self.BusinessEntity
-            project.Description = self.ProjectOmschrijvingVar.get()
-            project.ExterneId = self.ProjectIDVar.get()
-            project.Button = self.Button.get()
-            bl = BLProject.BLProject(self.Connection)
-            bl.Update(project)  
-        self.Master.quit()          
+        try:
+            if self.BusinessEntity==None:
+                project = Project.Project(None,self.ProjectOmschrijvingVar.get(),self.ProjectIDVar.get(),self.Button.get(),True)
+                bl = BLProject.BLProject(self.Connection)
+                bl.Create(project)
+            else:
+                project = self.BusinessEntity
+                project.Description = self.ProjectOmschrijvingVar.get()
+                project.ExterneId = self.ProjectIDVar.get()
+                project.Button = self.Button.get()
+                if project.Button == '': project.Button = None
+                bl = BLProject.BLProject(self.Connection)
+                bl.Update(project)
+                self.Master.quit()          
+        except sqlite3.IntegrityError as e:
+            messagebox.showerror('Error','Button must be unique')
+            Logger.LogError(str(e))
+            return
+        except Exception as e:
+            Logger.LogError(str(e))
+            return
+
+
+        
+
+
+
+               
 
 
 
