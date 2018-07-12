@@ -84,6 +84,7 @@ def CopyToCodex(dbConn,date):
         timeRecords = blTr.GetAllForDate(date)
         blPr = BLProject.BLProject(dbConn)
         blRt = BLRecordType.BLRecordType(dbConn)
+        sequence = ''
         for item in timeRecords:       
             item1 = blPr.GetProjectExterneID(item.ProjectID)
             item2 = blRt.GetRecordTypeExterneID(item.RecordTypeID)
@@ -120,10 +121,11 @@ def CopyToCodex(dbConn,date):
             km = "\t"
             if not item.Km is None:
                 km = str(item.Km) + "\t"
-            sequence = (item1,"\t","\t","\t",item2,"\t","\t","\t",km,"\t",item3,"\t",item4,"\t",string1,"\t",string2,"\n")
-            return s.join(sequence)
+            line = (item1,"\t","\t","\t",item2,"\t","\t","\t",km,"\t",item3,"\t",item4,"\t",string1,"\t",string2,"\n")
+            sequence = sequence + s.join(line)
+        return sequence
     except Exception as e:
-        Logger.LogError(e)
+        Logger.LogError(str(e))
 
 
 def ConvertToAmericanDate(dateString):
