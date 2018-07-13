@@ -7,3 +7,5 @@ cat .gitignore
 
 *.pyc
 *.pyc
+*.db
+*.spec

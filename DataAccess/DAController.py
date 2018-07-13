@@ -4,8 +4,9 @@ from BusinessLogic import Globals
 import queue
 
 class DAController:
-    def __init__(self,queue):
+    def __init__(self,queue,killEvent):
         self.Queue = queue
+        self.KillEvent = killEvent
         pygame.init()
         pygame.joystick.init() # main joystick device system
         try:
@@ -16,7 +17,7 @@ class DAController:
             print('no joystick found.')
 
     def Listen(self):
-        while 1:
+        while not self.KillEvent.wait(1):
             for e in pygame.event.get(): # iterate over event stack
                 if e.type == pygame.locals.JOYBUTTONDOWN: # 10
                     if self.Joystick.get_button(0):

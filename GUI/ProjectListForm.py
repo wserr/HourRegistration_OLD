@@ -28,10 +28,14 @@ class ProjectListForm:
         self.ActivationButton = Button(master,text='(De)Activate',command=self.ToggleActivation)
         self.ActivationButton.grid(row=0,column=3,sticky='NSEW')
 
+        self.ShowOnlyActive = False
+        self.ShowActiveOnlyButton = Button(master,text='Show Only Active',command=self.ToggleActiveProjects)
+        self.ShowActiveOnlyButton.grid(row=0,column=4,sticky='NSEW')
+
         self.ProjectsListBox = Listbox(master,width=80)
         self.ProjectsListBox.grid(row=1,column=0,columnspan=10,sticky='NSEW')
 
-        self.FillProjects(self.Cache.AllProjects)
+        self.FillProjects()
 
         self.ProjectsListBox.bind('<Double-1>', lambda x: self.Edit())
 
@@ -51,14 +55,24 @@ class ProjectListForm:
             project.Active=1
         else:
             project.Active=0
+            project.Button = None
         bl = BLProject.BLProject(self.Connection)
         bl.Update(project)
         self.Cache.RefreshProjects()
-        self.FillProjects(self.Cache.AllProjects)             
+        self.FillProjects()
+
+    def ToggleActiveProjects(self):
+        self.ShowOnlyActive = not self.ShowOnlyActive
+        self.FillProjects()
 
 
-    def FillProjects(self,projects):
+
+    def FillProjects(self):
         self.ProjectsListBox.delete(0,END)
+        if self.ShowOnlyActive:
+            projects = self.Cache.ActiveProjects
+        else:
+            projects = self.Cache.AllProjects
         for item in projects:     
             self.ProjectsListBox.insert(END,item)
         for i in range(0,self.ProjectsListBox.size()):
@@ -72,7 +86,7 @@ class ProjectListForm:
         pr = ProjectEditForm(self.Connection)
         pr.Show()
         self.Cache.RefreshProjects()
-        self.FillProjects(self.Cache.AllProjects)
+        self.FillProjects()
         pr.Master.destroy()
 
 
@@ -82,7 +96,7 @@ class ProjectListForm:
         pr = ProjectEditForm(self.Connection,project)
         pr.Show()
         self.Cache.RefreshProjects()
-        self.FillProjects(self.Cache.AllProjects)
+        self.FillProjects()
         pr.Master.destroy()
 
     def Delete(self):
@@ -91,7 +105,7 @@ class ProjectListForm:
         bl = BLProject.BLProject(self.Connection)
         bl.DeleteByID(project.ID)
         self.Cache.RefreshProjects()
-        self.FillProjects(self.Cache.AllProjects)
+        self.FillProjects()
 
 
 

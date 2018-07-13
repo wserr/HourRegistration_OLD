@@ -114,14 +114,15 @@ class MainScreen:
         self.SetButtonsEnabled()
 
         self.Queue = queue.Queue(10)
-        controllerThread = threading.Thread(target=self.ctrl,args=(self.Queue,))
-        controllerThread.start()
-        Logger.LogInfo(controllerThread.getName() + ' started.')
+        self.KillEvent = threading.Event()
+        self.ControllerThread = threading.Thread(target=self.ctrl,args=(self.Queue,self.KillEvent))
+        self.ControllerThread.start()
+        Logger.LogInfo(self.ControllerThread.getName() + ' started.')
 
         self.CheckForUpdatesFromController()
 
-    def ctrl(self,queue):
-        dac = DAController.DAController(queue)
+    def ctrl(self,queue,killEvent):
+        dac = DAController.DAController(queue,killEvent)
         dac.Listen()
 
     def CheckForUpdatesFromController(self):

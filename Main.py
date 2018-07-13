@@ -11,14 +11,15 @@ from tkinter import Tk,ttk
 #Handle Project Initialisations
 root = Tk()
 databaseConnection = DataBaseConnection()
-
+mainScreen = MainScreen(root,databaseConnection)
 try:
     Logger.LogInfo('Application Starting...')
-    mainScreen = MainScreen(root,databaseConnection)
     mainScreen.Show()
 except Exception as e:
     Logger.LogError(str(e),True)
 finally:
+    mainScreen.KillEvent.set()
+    mainScreen.ControllerThread.join()
     Logger.LogInfo('Application Stopping...')
     databaseConnection.CloseConnection()
 

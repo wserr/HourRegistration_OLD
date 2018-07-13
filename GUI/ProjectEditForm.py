@@ -65,6 +65,7 @@ class ProjectEditForm:
         try:
             if self.BusinessEntity==None:
                 project = Project.Project(None,self.ProjectOmschrijvingVar.get(),self.ProjectIDVar.get(),self.Button.get(),True)
+                if project.Button == '': project.Button = None
                 bl = BLProject.BLProject(self.Connection)
                 bl.Create(project)
             else:
@@ -75,7 +76,7 @@ class ProjectEditForm:
                 if project.Button == '': project.Button = None
                 bl = BLProject.BLProject(self.Connection)
                 bl.Update(project)
-                self.Master.quit()          
+            self.Master.quit()          
         except sqlite3.IntegrityError as e:
             messagebox.showerror('Error','Button must be unique')
             Logger.LogError(str(e))
