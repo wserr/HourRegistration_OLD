@@ -43,7 +43,7 @@ class ProjectListForm:
     #     self.Master.quit()
 
     def Quit(self):
-        self.Master.destroy()
+        self.Master.quit()
 
     def Show(self):
         self.Master.mainloop()
@@ -92,7 +92,7 @@ class ProjectListForm:
 
     def Edit(self):
         sel = self.ProjectsListBox.curselection()[0]
-        project = self.Cache.AllProjects[sel]
+        project = self.GetProject(sel)
         pr = ProjectEditForm(self.Connection,project)
         pr.Show()
         self.Cache.RefreshProjects()
@@ -101,11 +101,17 @@ class ProjectListForm:
 
     def Delete(self):
         sel = self.ProjectsListBox.curselection()[0]
-        project = self.Cache.AllProjects[sel]
+        project = self.GetProject(sel)
         bl = BLProject.BLProject(self.Connection)
         bl.DeleteByID(project.ID)
         self.Cache.RefreshProjects()
         self.FillProjects()
+
+    def GetProject(self,ID):
+        if self.ShowActiveOnlyButton:
+            return self.Cache.ActiveProjects[ID]
+        else:
+            return self.Cache.AllProjects[ID]
 
 
 

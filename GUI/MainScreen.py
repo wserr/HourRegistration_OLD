@@ -14,11 +14,16 @@ import os
 import threading
 import queue
 from DataAccess.Log import Logger
+import configparser
+from shutil import copyfile
+import datetime
 
 class MainScreen:
     def __init__(self,master,connection):
         #Reset Database if necessary
         Globals.ClearUserTables(connection)
+        self.Config = configparser.ConfigParser()
+        self.Config.read('config.ini')
 
         #Main Window
         self.Master = master
@@ -86,6 +91,11 @@ class MainScreen:
         self.AddTimeRecordIcon = PhotoImage(file=".\\Resources\\application_add.png")
         self.AddTimeRecordButton.config(image=self.AddTimeRecordIcon,width="32",height="32")
 
+        self.BackupButton = Button(master,text = "BackupButton",command = self.DatabaseBackup)
+        self.BackupButton.grid(row=4,column=0,sticky="NSEW")
+        self.BackupButtonIcon = PhotoImage(file=".\\Resources\\angel.png")
+        self.BackupButton.config(image=self.BackupButtonIcon,width="32",height="32")
+
         self.ProjectsCombo = ttk.Combobox(master,width = 100,textvariable = self.ProjectValue)
         self.ProjectsCombo.grid(row = 0,column = 3,sticky='NSEW')
 
@@ -124,6 +134,12 @@ class MainScreen:
     def ctrl(self,queue,killEvent):
         dac = DAController.DAController(queue,killEvent)
         dac.Listen()
+
+    def DatabaseBackup(self):
+        source = self.Config['DEFAULT']['databasename']
+        destination = self.Config['DEFAULT']['databasebackuplocation'] + '{}.db'.format(time.strftime('%Y%m%d%H%M'))
+        copyfile(source,destination)
+        messagebox.showinfo('Backup','Database backup made')
 
     def CheckForUpdatesFromController(self):
         if not self.Queue.empty():
@@ -227,10 +243,12 @@ class MainScreen:
                 self.RecordsListBox.itemconfig(i,{'bg':'orange'})              
 
     def StartRecording(self):
-        blRT = BLRecordType.BLRecordType(self.dbConnection)
-        blPR = BLProject.BLProject(self.dbConnection)
-        recordType = blRT.GetRecordTypeIDFromDescription(self.RecordTypeValue.get())
-        project = blPR.GetProjectIDFromDescription(self.ProjectValue.get())
+        recordIndex = self.RecordTypeCombo.current()
+        projectIndex = self.ProjectsCombo.current()
+        if recordIndex == -1: recordType = None 
+        else: recordType = self.Cache.RecordTypes[recordIndex].Description
+        if projectIndex == -1: project = None 
+        else: project = self.Cache.ActiveProjects[projectIndex]
         timeRecord = TimeRecord.TimeRecord(None,Globals.GetCurrentTime(),None,project,recordType,self.DescriptionValue.get(),TimeRecordStatusEnum.TimeRecordStatusEnum.Gestart.value,0,None,None)
         
         valid = TimeRecordValidation.TimeRecordValidation()
@@ -289,7 +307,7 @@ class MainScreen:
     def ShowNewEditForm(self):
         tr = TimeRecordView.TimeRecordView(None,None,None,None,None,None,None,None,None,None)
         index = self.DaysCombo.current()
-        tr.Date = self.Cache.TimeRecords[index].StartHour
+        tr.Date = self.Cache.DayViews[index].Date
         edit = TimeRecordEditForm(self.dbConnection,tr,self.Cache)
         edit.Show()
         index = self.DaysCombo.current()

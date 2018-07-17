@@ -1,12 +1,13 @@
-import xlwt
+import xlsxwriter
 
 class DAExcel:
     def __init__(self,conn):
         self.Cursor = conn.Connection.cursor()
     
     def ExportToExcel(self,timeRecordViews,path):
-        book = xlwt.Workbook(encoding = "utf-8")
-        sheet1 = book.add_sheet("Sheet 1")
+        path = path.replace("-","") + ".xlsx"
+        book = xlsxwriter.Workbook(path)
+        sheet1 = book.add_worksheet("Sheet 1")
         rowIndex = 0
         sheet1.write(rowIndex,0,"ID")
         sheet1.write(rowIndex,1,"Date")
@@ -26,8 +27,7 @@ class DAExcel:
             sheet1.write(rowIndex,5,record.Project)
             sheet1.write(rowIndex,6,record.RecordType)
             rowIndex = rowIndex+1
-        
-        path = path.replace("-","") + ".xls"
-        book.save(path)
+    
+        book.close()
 
         
