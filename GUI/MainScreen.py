@@ -245,10 +245,10 @@ class MainScreen:
     def StartRecording(self):
         recordIndex = self.RecordTypeCombo.current()
         projectIndex = self.ProjectsCombo.current()
-        if recordIndex == -1: recordType = None 
-        else: recordType = self.Cache.RecordTypes[recordIndex].Description
+        if recordIndex == -1: recordType = ''
+        else: recordType = self.Cache.RecordTypes[recordIndex].ID
         if projectIndex == -1: project = None 
-        else: project = self.Cache.ActiveProjects[projectIndex]
+        else: project = self.Cache.ActiveProjects[projectIndex].ID
         timeRecord = TimeRecord.TimeRecord(None,Globals.GetCurrentTime(),None,project,recordType,self.DescriptionValue.get(),TimeRecordStatusEnum.TimeRecordStatusEnum.Gestart.value,0,None,None)
         
         valid = TimeRecordValidation.TimeRecordValidation()
