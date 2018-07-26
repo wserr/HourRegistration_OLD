@@ -83,18 +83,18 @@ class TimeRecordEditForm:
         # recordTypeID = self.conn.GetRecordTypeID(self.RecordTypeValue.get())
         # self.conn.UpdateSelectedRecord(self.RecordID,projectID,recordTypeID,self.StartDate.get(),self.EndDate.get(),self.DescriptionValue.get())
         blTr = BLTimeRecord.BLTimeRecord(self.Connection)
+        blPr = BLProject.BLProject(self.Connection)
+        blRt = BLRecordType.BLRecordType(self.Connection)
         Tr = blTr.GetById(self.RecordID)
         Tr.Description = self.DescriptionValue.get()
         timeString = Globals.ConvertToAmericanDate(self.TimeRecord.Date) + ' 00:00'
         Tr.StartHour = self.GetDate(timeString,self.StartDate.get())
         if not self.EndDate.get() =='':           
             Tr.EndHour = self.GetDate(Tr.StartHour,self.EndDate.get())
-        Tr.ProjectID = self.Cache.ActiveProjects[self.ProjectsCombo.current()].ID
-        Tr.RecordTypeID = self.Cache.RecordTypes[self.RecordTypeCombo.current()].ID
+        Tr.ProjectID = blPr.GetProjectIDFromDescription(self.ProjectValue.get())
+        Tr.RecordTypeId = blRt.GetRecordTypeIDFromDescription(self.RecordTypeValue.get())
         Tr.Km = self.KmValue.get()
-
         oneNoteLink = self.OneNoteValue.get()
-
         try:
             if not oneNoteLink=="" and not oneNoteLink.startswith("onenote"):
                 secondPart = oneNoteLink.split("onenote")[1]

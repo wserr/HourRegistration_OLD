@@ -2,7 +2,7 @@
 #Import Modules
 
 from tkinter import *
-from tkinter import ttk,messagebox
+from tkinter.ttk import *
 from BusinessLogic import BLProject,BLRecordType,BLTimeRecordView,BLTimeRecord,TimeRecordValidation,BLDayView, Cache, Globals
 from BusinessEntities import TimeRecord,TimeRecordStatusEnum,DayView,TimeRecordView
 from DataAccess import DAController

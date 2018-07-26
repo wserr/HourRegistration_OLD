@@ -43,6 +43,7 @@ class ProjectListForm:
     #     self.Master.quit()
 
     def Quit(self):
+        self.ProjectsListBox.unbind_all('<Double-1>')
         self.Master.quit()
 
     def Show(self):
@@ -87,7 +88,7 @@ class ProjectListForm:
         pr.Show()
         self.Cache.RefreshProjects()
         self.FillProjects()
-        pr.Master.destroy()
+        pr.Master.quit()
 
 
     def Edit(self):
@@ -97,7 +98,7 @@ class ProjectListForm:
         pr.Show()
         self.Cache.RefreshProjects()
         self.FillProjects()
-        pr.Master.destroy()
+        pr.Master.quit()
 
     def Delete(self):
         sel = self.ProjectsListBox.curselection()[0]
@@ -108,7 +109,7 @@ class ProjectListForm:
         self.FillProjects()
 
     def GetProject(self,ID):
-        if self.ShowActiveOnlyButton:
+        if self.ShowOnlyActive:
             return self.Cache.ActiveProjects[ID]
         else:
             return self.Cache.AllProjects[ID]
