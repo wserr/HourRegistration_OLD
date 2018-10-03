@@ -7,11 +7,11 @@ from GUI.ProjectEditForm import *
 
 
 class ProjectListForm:
-    def __init__(self,Cache,conn):
+    def __init__(self,Cache,conn,parent):
         self.Cache = Cache
         self.Connection = conn
 
-        master = Tk()
+        master = Toplevel(parent)
         self.Master = master
         master.protocol('WM_DELETE_WINDOW', self.Quit)
         self.Master.title("Projects")
@@ -39,12 +39,9 @@ class ProjectListForm:
 
         self.ProjectsListBox.bind('<Double-1>', lambda x: self.Edit())
 
-    # def CloseWindow(self):
-    #     self.Master.quit()
-
     def Quit(self):
         self.ProjectsListBox.unbind_all('<Double-1>')
-        self.Master.quit()
+        self.Master.destroy()
 
     def Show(self):
         self.Master.mainloop()
@@ -66,8 +63,6 @@ class ProjectListForm:
         self.ShowOnlyActive = not self.ShowOnlyActive
         self.FillProjects()
 
-
-
     def FillProjects(self):
         self.ProjectsListBox.delete(0,END)
         if self.ShowOnlyActive:
@@ -84,21 +79,21 @@ class ProjectListForm:
 
         
     def Add(self):
-        pr = ProjectEditForm(self.Connection)
-        pr.Show()
+        pr = ProjectEditForm(self.Connection,self.Master)
+        self.Master.wait_window(pr.Master)
         self.Cache.RefreshProjects()
         self.FillProjects()
-        pr.Master.quit()
+        #pr.Master.quit()
 
 
     def Edit(self):
         sel = self.ProjectsListBox.curselection()[0]
         project = self.GetProject(sel)
-        pr = ProjectEditForm(self.Connection,project)
-        pr.Show()
+        pr = ProjectEditForm(self.Connection,project,self.Master)
+        self.Master.wait_window(pr.Master)
         self.Cache.RefreshProjects()
         self.FillProjects()
-        pr.Master.quit()
+        #pr.Master.Quit()
 
     def Delete(self):
         sel = self.ProjectsListBox.curselection()[0]

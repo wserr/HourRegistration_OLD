@@ -105,8 +105,8 @@ class MainScreen:
         self.DescriptionTextBox = Entry(master,textvariable = self.DescriptionValue)
         self.DescriptionTextBox.grid(row = 2,column = 3,sticky='NSEW')
 
-        self.RecordsListBox = Listbox(master)
-        self.RecordsListBox.grid(row = 3,column =3, rowspan = 7,columnspan = 3,sticky='NSEW')
+        self.RecordsTreeView = Treeview(master)
+        self.RecordsTreeView.grid(row = 3,column =3, rowspan = 7,columnspan = 3,sticky='NSEW')
 
         self.EventLogExplanationLabel = Label(master,text="Laatst aangemeld op: ")
         self.EventLogExplanationLabel.grid(row=0,column=4)
@@ -115,8 +115,8 @@ class MainScreen:
         self.EventLogLabel.grid(row=1,column = 4)
 
         self.DaysCombo.bind("<<ComboboxSelected>>",self.DaysCombo_SelectedItemChanged)
-        self.RecordsListBox.bind("<<ListboxSelect>>",self.RecordsListBox_SelectedItemChanged)
-        self.RecordsListBox.bind('<Double-1>', lambda x: self.ShowEditForm())
+        self.RecordsTreeView.bind("<<ListboxSelect>>",self.RecordsListBox_SelectedItemChanged)
+        self.RecordsTreeView.bind('<Double-1>', lambda x: self.ShowEditForm())
         #End Designer
 
         #Set Form Controls
@@ -174,13 +174,13 @@ class MainScreen:
         self.Master.after(500, self.CheckForUpdatesFromController)
 
     def OpenInOneNote(self):
-        sel = self.RecordsListBox.curselection()[0]
+        sel = self.RecordsTreeView.curselection()[0]
         timeRecordView = self.Cache.TimeRecordViews[sel]
         os.system("start "+timeRecordView.OneNoteLink)
 
     def CopyRecord(self):
         blTr = BLTimeRecord.BLTimeRecord(self.dbConnection)
-        sel = self.RecordsListBox.curselection()[0]
+        sel = self.RecordsTreeView.curselection()[0]
         timeRecordView = self.Cache.TimeRecordViews[sel]
         timeRecord = blTr.GetById(timeRecordView.ID)
         blTr.CopyTimeRecord(timeRecord)
@@ -209,7 +209,7 @@ class MainScreen:
             self.Cache.RefreshTimeRecordsForDate(date)
             self.FillTimeRecords(self.Cache.TimeRecordViews)
         else:
-            self.RecordsListBox.delete(0,END)
+            self.RecordsTreeView.delete(0,END)
 
     def Show(self):
         self.Master.mainloop()
@@ -229,18 +229,18 @@ class MainScreen:
         self.DaysCombo['value'] = self.Cache.DayViews
 
     def FillTimeRecords(self,timeRecordViews):
-        self.RecordsListBox.delete(0,END)
+        self.RecordsTreeView.delete(0,END)
         for item in timeRecordViews:     
-            self.RecordsListBox.insert(END,item)
-        for i in range(0,self.RecordsListBox.size()):
+            self.RecordsTreeView.insert(END,item)
+        for i in range(0,self.RecordsTreeView.size()):
             item = timeRecordViews[i]
             itemStatus = item.Status
             if itemStatus == 'Gestart':
-                self.RecordsListBox.itemconfig(i,{'bg':'red'})
+                self.RecordsTreeView.itemconfig(i,{'bg':'red'})
             elif itemStatus == 'Gestopt':
-                self.RecordsListBox.itemconfig(i,{'bg':'green'})
+                self.RecordsTreeView.itemconfig(i,{'bg':'green'})
             elif itemStatus == 'Gekopieerd':
-                self.RecordsListBox.itemconfig(i,{'bg':'orange'})              
+                self.RecordsTreeView.itemconfig(i,{'bg':'orange'})              
 
     def StartRecording(self):
         recordIndex = self.RecordTypeCombo.current()
@@ -270,7 +270,7 @@ class MainScreen:
 
     def StopRecording(self):
         blTr = BLTimeRecord.BLTimeRecord(self.dbConnection)
-        sel = self.RecordsListBox.curselection()[0]
+        sel = self.RecordsTreeView.curselection()[0]
         timeRecordView = self.Cache.TimeRecordViews[sel]
         timeRecord = blTr.GetById(timeRecordView.ID)
         timeRecord.EndHour = Globals.GetCurrentTime()
@@ -293,9 +293,9 @@ class MainScreen:
         self.RefreshTimeRecords()
 
     def ShowEditForm(self):
-        timeRecordView = self.Cache.TimeRecordViews[self.RecordsListBox.curselection()[0]]    
-        edit = TimeRecordEditForm(self.dbConnection,timeRecordView,self.Cache)
-        edit.Show()
+        timeRecordView = self.Cache.TimeRecordViews[self.RecordsTreeView.curselection()[0]]    
+        edit = TimeRecordEditForm(self.dbConnection,timeRecordView,self.Cache,self.Master)
+        self.Master.wait_window(edit.Master)
         index = self.DaysCombo.current()
         self.DaysCombo.current(0)
         self.Cache.RefreshAllStaticData()
@@ -308,31 +308,28 @@ class MainScreen:
         tr = TimeRecordView.TimeRecordView(None,None,None,None,None,None,None,None,None,None)
         index = self.DaysCombo.current()
         tr.Date = self.Cache.DayViews[index].Date
-        edit = TimeRecordEditForm(self.dbConnection,tr,self.Cache)
-        edit.Show()
+        edit = TimeRecordEditForm(self.dbConnection,tr,self.Cache,self.Master)
+        self.Master.wait_window(edit.Master)
         index = self.DaysCombo.current()
         self.DaysCombo.current(0)
         self.Cache.RefreshAllStaticData()
         self.FillCombos()
         self.DaysCombo.current(index)
         self.RefreshTimeRecords()
-        edit.Master.destroy()
 
     def OpenProjectListForm(self):
-        projectListForm = ProjectListForm(self.Cache,self.dbConnection)
-        projectListForm.Show()     
+        projectListForm = ProjectListForm(self.Cache,self.dbConnection,self.Master)
+        self.Master.wait_window(projectListForm.Master)     
         self.Cache.RefreshAllStaticData()
         self.FillCombos()
-        projectListForm.Master.destroy() 
 
     def ExportToExcel(self):
-        excel = ExportToExcelForm(self.dbConnection)
-        excel.Show()
-        excel.Master.destroy()
+        excel = ExportToExcelForm(self.dbConnection,self.Master)
+        self.Master.wait_window(excel.Master)
 
     def DeleteRecord(self):
         bl = BLTimeRecord.BLTimeRecord(self.dbConnection)
-        indexRecordsListBox = self.RecordsListBox.curselection()[0]
+        indexRecordsListBox = self.RecordsTreeView.curselection()[0]
         record = self.Cache.TimeRecordViews[indexRecordsListBox]
         bl.DeleteByID(record.ID)
         index = self.DaysCombo.current()
@@ -352,12 +349,14 @@ class MainScreen:
         enableDelete = True
         enableCopyRecord = True
         enableOpenOneNote = True
+        enableCreateTimeRecord = True
         indexDaysCombo = self.DaysCombo.current()
-        indexRecordsListBox = self.RecordsListBox.curselection()
+        indexRecordsListBox = self.RecordsTreeView.curselection()
         current = Globals.GetCurrentDay()
         if indexDaysCombo==-1:
             enableStop=False
             enableCopyToCodex=False
+            enableCreateTimeRecord=False
         else:
             date = self.Cache.DayViews[indexDaysCombo].Date
             if not current==date:
@@ -382,6 +381,7 @@ class MainScreen:
         self.SetButton(enableDelete,self.DeleteRecordButton)
         self.SetButton(enableCopyRecord,self.CopyRecordButton)
         self.SetButton(enableOpenOneNote,self.OneNoteButton)
+        self.SetButton(enableCreateTimeRecord,self.AddTimeRecordButton)
 
         
     def SetButton(self,enabled,button):
