@@ -7,8 +7,8 @@ import datetime
 
 
 class TimeRecordEditForm:
-    def __init__(self,conn,timeRecordView,Cache):
-        master = Tk()
+    def __init__(self,conn,timeRecordView,Cache,parent):
+        master = Toplevel(parent)
         self.TimeRecord = timeRecordView
         self.RecordID = timeRecordView.ID
         if self.TimeRecord.Project == None:
@@ -92,7 +92,7 @@ class TimeRecordEditForm:
         if not self.EndDate.get() =='':           
             Tr.EndHour = self.GetDate(Tr.StartHour,self.EndDate.get())
         Tr.ProjectID = blPr.GetProjectIDFromDescription(self.ProjectValue.get())
-        Tr.RecordTypeId = blRt.GetRecordTypeIDFromDescription(self.RecordTypeValue.get())
+        Tr.RecordTypeID = blRt.GetRecordTypeIDFromDescription(self.RecordTypeValue.get())
         Tr.Km = self.KmValue.get()
         oneNoteLink = self.OneNoteValue.get()
         try:
