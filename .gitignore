@@ -11,3 +11,4 @@ cat .gitignore
 *.spec
 *.pyc
 GUI/__pycache__/MainScreen.cpython-36.pyc
+
