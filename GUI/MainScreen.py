@@ -105,9 +105,22 @@ class MainScreen:
         self.DescriptionTextBox = Entry(master,textvariable = self.DescriptionValue)
         self.DescriptionTextBox.grid(row = 2,column = 3,sticky='NSEW')
 
-        self.RecordsTreeView = Treeview(master)
-        self.RecordsTreeView.grid(row = 3,column =3, rowspan = 7,columnspan = 3,sticky='NSEW')
 
+        self.RecordsTreeView = ttk.Treeview( master, columns=('Project', 'Description','Start Hour','End Hour'))
+        self.RecordsTreeView.heading('#0', text='Project',anchor=ttk.tkinter.W)
+        self.RecordsTreeView.heading('#1', text='Description',anchor=ttk.tkinter.W)
+        self.RecordsTreeView.heading('#2', text='Start Hour',anchor=ttk.tkinter.W)
+        self.RecordsTreeView.heading('#3', text='End Hour',anchor=ttk.tkinter.W)
+        self.RecordsTreeView.column('#0', stretch=ttk.tkinter.NO)
+        self.RecordsTreeView.column('#1', stretch=ttk.tkinter.NO)
+        self.RecordsTreeView.column('#2', stretch=ttk.tkinter.NO)
+        self.RecordsTreeView.column('#3', stretch=ttk.tkinter.NO)
+        self.RecordsTreeView.grid(row=3,column=3, columnspan=2,rowspan=10, sticky='nsew')
+
+        self.RecordsTreeView.tag_configure("Gestart",background="red")
+        self.RecordsTreeView.tag_configure("Gestopt",background="green")
+        self.RecordsTreeView.tag_configure("Gekopieerd",background="orange")
+        
         self.EventLogExplanationLabel = Label(master,text="Laatst aangemeld op: ")
         self.EventLogExplanationLabel.grid(row=0,column=4)
 
@@ -174,17 +187,19 @@ class MainScreen:
         self.Master.after(500, self.CheckForUpdatesFromController)
 
     def OpenInOneNote(self):
-        sel = self.RecordsTreeView.curselection()[0]
-        timeRecordView = self.Cache.TimeRecordViews[sel]
-        os.system("start "+timeRecordView.OneNoteLink)
+        i=1
+        # sel = self.RecordsTreeView.curselection()[0]
+        # timeRecordView = self.Cache.TimeRecordViews[sel]
+        # os.system("start "+timeRecordView.OneNoteLink)
 
     def CopyRecord(self):
-        blTr = BLTimeRecord.BLTimeRecord(self.dbConnection)
-        sel = self.RecordsTreeView.curselection()[0]
-        timeRecordView = self.Cache.TimeRecordViews[sel]
-        timeRecord = blTr.GetById(timeRecordView.ID)
-        blTr.CopyTimeRecord(timeRecord)
-        self.Refresh()
+        i=1
+        # blTr = BLTimeRecord.BLTimeRecord(self.dbConnection)
+        # sel = self.RecordsTreeView.curselection()[0]
+        # timeRecordView = self.Cache.TimeRecordViews[sel]
+        # timeRecord = blTr.GetById(timeRecordView.ID)
+        # blTr.CopyTimeRecord(timeRecord)
+        # self.Refresh()
 
     def Refresh(self):
         index = self.DaysCombo.current()
@@ -229,18 +244,25 @@ class MainScreen:
         self.DaysCombo['value'] = self.Cache.DayViews
 
     def FillTimeRecords(self,timeRecordViews):
-        self.RecordsTreeView.delete(0,END)
-        for item in timeRecordViews:     
-            self.RecordsTreeView.insert(END,item)
-        for i in range(0,self.RecordsTreeView.size()):
-            item = timeRecordViews[i]
-            itemStatus = item.Status
-            if itemStatus == 'Gestart':
-                self.RecordsTreeView.itemconfig(i,{'bg':'red'})
-            elif itemStatus == 'Gestopt':
-                self.RecordsTreeView.itemconfig(i,{'bg':'green'})
-            elif itemStatus == 'Gekopieerd':
-                self.RecordsTreeView.itemconfig(i,{'bg':'orange'})              
+        # Delete all records in recordstreeview
+        for i in self.RecordsTreeView.get_children():
+            self.RecordsTreeView.delete(i)
+
+        for item in timeRecordViews:
+            self.RecordsTreeView.insert('',0,text =item.Project,values=(item.Description,str(item.StartHour),str(item.EndHour)),tags=item.Status)
+     
+        # self.RecordsTreeView.delete(0,END)
+        # for item in timeRecordViews:     
+        #     self.RecordsTreeView.insert(END,item)
+        # for i in range(0,self.RecordsTreeView.size()):
+        #     item = timeRecordViews[i]
+        #     itemStatus = item.Status
+        #     if itemStatus == 'Gestart':
+        #         self.RecordsTreeView.itemconfig(i,{'bg':'red'})
+        #     elif itemStatus == 'Gestopt':
+        #         self.RecordsTreeView.itemconfig(i,{'bg':'green'})
+        #     elif itemStatus == 'Gekopieerd':
+        #         self.RecordsTreeView.itemconfig(i,{'bg':'orange'})              
 
     def StartRecording(self):
         recordIndex = self.RecordTypeCombo.current()
@@ -269,21 +291,22 @@ class MainScreen:
             self.RefreshTimeRecords() 
 
     def StopRecording(self):
-        blTr = BLTimeRecord.BLTimeRecord(self.dbConnection)
-        sel = self.RecordsTreeView.curselection()[0]
-        timeRecordView = self.Cache.TimeRecordViews[sel]
-        timeRecord = blTr.GetById(timeRecordView.ID)
-        timeRecord.EndHour = Globals.GetCurrentTime()
+        i=1
+        # blTr = BLTimeRecord.BLTimeRecord(self.dbConnection)
+        # sel = self.RecordsTreeView.curselection()[0]
+        # timeRecordView = self.Cache.TimeRecordViews[sel]
+        # timeRecord = blTr.GetById(timeRecordView.ID)
+        # timeRecord.EndHour = Globals.GetCurrentTime()
 
-        timeRecord.StatusID = TimeRecordStatusEnum.TimeRecordStatusEnum.Gestopt.value
-        blTr.Update(timeRecord)
-        index = self.DaysCombo.current()
-        self.DaysCombo.current(0)
-        self.Cache.RefreshAllStaticData()
-        self.FillCombos()
-        self.DaysCombo.current(index)
-        self.RefreshTimeRecords()
-        self.SetButtonsEnabled()
+        # timeRecord.StatusID = TimeRecordStatusEnum.TimeRecordStatusEnum.Gestopt.value
+        # blTr.Update(timeRecord)
+        # index = self.DaysCombo.current()
+        # self.DaysCombo.current(0)
+        # self.Cache.RefreshAllStaticData()
+        # self.FillCombos()
+        # self.DaysCombo.current(index)
+        # self.RefreshTimeRecords()
+        # self.SetButtonsEnabled()
     
     def CopyToCodex(self):
         self.Master.clipboard_clear()
@@ -293,16 +316,17 @@ class MainScreen:
         self.RefreshTimeRecords()
 
     def ShowEditForm(self):
-        timeRecordView = self.Cache.TimeRecordViews[self.RecordsTreeView.curselection()[0]]    
-        edit = TimeRecordEditForm(self.dbConnection,timeRecordView,self.Cache,self.Master)
-        self.Master.wait_window(edit.Master)
-        index = self.DaysCombo.current()
-        self.DaysCombo.current(0)
-        self.Cache.RefreshAllStaticData()
-        self.FillCombos()
-        self.DaysCombo.current(index)
-        self.RefreshTimeRecords()
-        edit.Master.destroy()
+        i=1
+        # timeRecordView = self.Cache.TimeRecordViews[self.RecordsTreeView.curselection()[0]]    
+        # edit = TimeRecordEditForm(self.dbConnection,timeRecordView,self.Cache,self.Master)
+        # self.Master.wait_window(edit.Master)
+        # index = self.DaysCombo.current()
+        # self.DaysCombo.current(0)
+        # self.Cache.RefreshAllStaticData()
+        # self.FillCombos()
+        # self.DaysCombo.current(index)
+        # self.RefreshTimeRecords()
+        # edit.Master.destroy()
 
     def ShowNewEditForm(self):
         tr = TimeRecordView.TimeRecordView(None,None,None,None,None,None,None,None,None,None)
@@ -328,60 +352,62 @@ class MainScreen:
         self.Master.wait_window(excel.Master)
 
     def DeleteRecord(self):
-        bl = BLTimeRecord.BLTimeRecord(self.dbConnection)
-        indexRecordsListBox = self.RecordsTreeView.curselection()[0]
-        record = self.Cache.TimeRecordViews[indexRecordsListBox]
-        bl.DeleteByID(record.ID)
-        index = self.DaysCombo.current()
-        self.Cache.RefreshAllStaticData()
-        self.FillCombos()
-        #Hier schiet nog 1 record over; het is nog niet verwijderd uit Cache op dit moment
-        if len(self.Cache.TimeRecordViews)==1: 
-            self.DaysCombo.set('')
-        else:
-            self.DaysCombo.current(index)
-        self.RefreshTimeRecords()
-        self.SetButtonsEnabled()
+        i=1
+        # bl = BLTimeRecord.BLTimeRecord(self.dbConnection)
+        # indexRecordsListBox = self.RecordsTreeView.curselection()[0]
+        # record = self.Cache.TimeRecordViews[indexRecordsListBox]
+        # bl.DeleteByID(record.ID)
+        # index = self.DaysCombo.current()
+        # self.Cache.RefreshAllStaticData()
+        # self.FillCombos()
+        # #Hier schiet nog 1 record over; het is nog niet verwijderd uit Cache op dit moment
+        # if len(self.Cache.TimeRecordViews)==1: 
+        #     self.DaysCombo.set('')
+        # else:
+        #     self.DaysCombo.current(index)
+        # self.RefreshTimeRecords()
+        # self.SetButtonsEnabled()
 
     def SetButtonsEnabled(self):
-        enableStop = True
-        enableCopyToCodex = True
-        enableDelete = True
-        enableCopyRecord = True
-        enableOpenOneNote = True
-        enableCreateTimeRecord = True
-        indexDaysCombo = self.DaysCombo.current()
-        indexRecordsListBox = self.RecordsTreeView.curselection()
-        current = Globals.GetCurrentDay()
-        if indexDaysCombo==-1:
-            enableStop=False
-            enableCopyToCodex=False
-            enableCreateTimeRecord=False
-        else:
-            date = self.Cache.DayViews[indexDaysCombo].Date
-            if not current==date:
-                enableStop=False
-            bl = BLTimeRecord.BLTimeRecord(self.dbConnection)
-            records = bl.GetAllForDate(date)
-            for record in records:
-                if record.StatusID==TimeRecordStatusEnum.TimeRecordStatusEnum.Gestart.value:
-                    enableCopyToCodex=False           
-        if len(indexRecordsListBox) == 0:
-            enableStop=False
-            enableDelete = False
-            enableCopyRecord = False
-            enableOpenOneNote = False
-        else:
-            trView = self.Cache.TimeRecordViews[indexRecordsListBox[0]]
-            if trView.OneNoteLink == 'None' or trView.OneNoteLink == "":
-                enableOpenOneNote = False
+        i=1
+        # enableStop = True
+        # enableCopyToCodex = True
+        # enableDelete = True
+        # enableCopyRecord = True
+        # enableOpenOneNote = True
+        # enableCreateTimeRecord = True
+        # indexDaysCombo = self.DaysCombo.current()
+        # indexRecordsListBox = self.RecordsTreeView.curselection()
+        # current = Globals.GetCurrentDay()
+        # if indexDaysCombo==-1:
+        #     enableStop=False
+        #     enableCopyToCodex=False
+        #     enableCreateTimeRecord=False
+        # else:
+        #     date = self.Cache.DayViews[indexDaysCombo].Date
+        #     if not current==date:
+        #         enableStop=False
+        #     bl = BLTimeRecord.BLTimeRecord(self.dbConnection)
+        #     records = bl.GetAllForDate(date)
+        #     for record in records:
+        #         if record.StatusID==TimeRecordStatusEnum.TimeRecordStatusEnum.Gestart.value:
+        #             enableCopyToCodex=False           
+        # if len(indexRecordsListBox) == 0:
+        #     enableStop=False
+        #     enableDelete = False
+        #     enableCopyRecord = False
+        #     enableOpenOneNote = False
+        # else:
+        #     trView = self.Cache.TimeRecordViews[indexRecordsListBox[0]]
+        #     if trView.OneNoteLink == 'None' or trView.OneNoteLink == "":
+        #         enableOpenOneNote = False
           
-        self.SetButton(enableStop,self.StopRecordButton)
-        self.SetButton(enableCopyToCodex,self.CopyToCodexButton)
-        self.SetButton(enableDelete,self.DeleteRecordButton)
-        self.SetButton(enableCopyRecord,self.CopyRecordButton)
-        self.SetButton(enableOpenOneNote,self.OneNoteButton)
-        self.SetButton(enableCreateTimeRecord,self.AddTimeRecordButton)
+        # self.SetButton(enableStop,self.StopRecordButton)
+        # self.SetButton(enableCopyToCodex,self.CopyToCodexButton)
+        # self.SetButton(enableDelete,self.DeleteRecordButton)
+        # self.SetButton(enableCopyRecord,self.CopyRecordButton)
+        # self.SetButton(enableOpenOneNote,self.OneNoteButton)
+        # self.SetButton(enableCreateTimeRecord,self.AddTimeRecordButton)
 
         
     def SetButton(self,enabled,button):
