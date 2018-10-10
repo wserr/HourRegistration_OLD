@@ -9,8 +9,8 @@ from DataAccess.Log import Logger
 
 
 class ProjectEditForm:
-    def __init__(self,conn,parent,project=None):
-        master = Toplevel(parent)
+    def __init__(self,conn,project=None):
+        master = Tk()
         self.Connection = conn
         self.ProjectOmschrijvingVar = StringVar(master)
         self.ProjectIDVar = StringVar(master)
@@ -75,7 +75,8 @@ class ProjectEditForm:
                 project.Button = self.Button.get()
                 if project.Button == '': project.Button = None
                 bl = BLProject.BLProject(self.Connection)
-                bl.Update(project)       
+                bl.Update(project)
+            self.Master.quit()          
         except sqlite3.IntegrityError as e:
             messagebox.showerror('Error','Button must be unique')
             Logger.LogError(str(e))
@@ -83,8 +84,6 @@ class ProjectEditForm:
         except Exception as e:
             Logger.LogError(str(e))
             return
-        finally:
-            self.Quit()
 
 
         

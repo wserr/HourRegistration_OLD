@@ -5,8 +5,8 @@ from BusinessLogic import BLExcel,BLTimeRecordView,Globals
 
 
 class ExportToExcelForm:
-    def __init__(self,conn,parent):
-        master = Toplevel(parent)
+    def __init__(self,conn):
+        master = Toplevel()
         self.Master = master
         self.Connection = conn
         self.DateFrom = StringVar()
@@ -45,8 +45,6 @@ class ExportToExcelForm:
             file_path = file_path + "/" + Globals.GetCurrentDay()
             blE.ExportToExcel(timeRecords,file_path)
             self.Master.quit()
-        else:
-            self.Master.focus_force()
 
     def Show(self):
         self.Master.mainloop()
