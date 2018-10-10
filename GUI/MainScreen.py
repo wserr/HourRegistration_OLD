@@ -106,23 +106,21 @@ class MainScreen:
         self.DescriptionTextBox.grid(row = 2,column = 3,sticky='NSEW')
 
 
-        self.RecordsTreeView = ttk.Treeview( master, columns=('Project', 'Description','Start Hour','End Hour','ID'))
+        self.RecordsTreeView = ttk.Treeview( master, columns=('Project', 'Description','Start Hour','End Hour'))
         self.RecordsTreeView.heading('#0', text='Project',anchor=ttk.tkinter.W)
         self.RecordsTreeView.heading('#1', text='Description',anchor=ttk.tkinter.W)
         self.RecordsTreeView.heading('#2', text='Start Hour',anchor=ttk.tkinter.W)
         self.RecordsTreeView.heading('#3', text='End Hour',anchor=ttk.tkinter.W)
-        self.RecordsTreeView.heading('#4', text='ID',anchor=ttk.tkinter.W)
         self.RecordsTreeView.column('#0', stretch=ttk.tkinter.NO)
         self.RecordsTreeView.column('#1', stretch=ttk.tkinter.NO)
         self.RecordsTreeView.column('#2', stretch=ttk.tkinter.NO)
         self.RecordsTreeView.column('#3', stretch=ttk.tkinter.NO)
-        self.RecordsTreeView.column('#4', stretch=ttk.tkinter.NO)
         self.RecordsTreeView.grid(row=3,column=3, columnspan=2,rowspan=10, sticky='nsew')
 
         self.RecordsTreeView.tag_configure("Gestart",background="red")
         self.RecordsTreeView.tag_configure("Gestopt",background="green")
         self.RecordsTreeView.tag_configure("Gekopieerd",background="orange")
-
+        
         self.EventLogExplanationLabel = Label(master,text="Laatst aangemeld op: ")
         self.EventLogExplanationLabel.grid(row=0,column=4)
 
@@ -251,7 +249,20 @@ class MainScreen:
             self.RecordsTreeView.delete(i)
 
         for item in timeRecordViews:
-            self.RecordsTreeView.insert('',0,text =item.Project,values=(item.Description,str(item.StartHour),str(item.EndHour),str(item.ID)),tags=item.Status)            
+            self.RecordsTreeView.insert('',0,text =item.Project,values=(item.Description,str(item.StartHour),str(item.EndHour)),tags=item.Status)
+     
+        # self.RecordsTreeView.delete(0,END)
+        # for item in timeRecordViews:     
+        #     self.RecordsTreeView.insert(END,item)
+        # for i in range(0,self.RecordsTreeView.size()):
+        #     item = timeRecordViews[i]
+        #     itemStatus = item.Status
+        #     if itemStatus == 'Gestart':
+        #         self.RecordsTreeView.itemconfig(i,{'bg':'red'})
+        #     elif itemStatus == 'Gestopt':
+        #         self.RecordsTreeView.itemconfig(i,{'bg':'green'})
+        #     elif itemStatus == 'Gekopieerd':
+        #         self.RecordsTreeView.itemconfig(i,{'bg':'orange'})              
 
     def StartRecording(self):
         recordIndex = self.RecordTypeCombo.current()
