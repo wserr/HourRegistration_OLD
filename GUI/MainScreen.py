@@ -117,7 +117,8 @@ class MainScreen:
         self.RecordsTreeView.column('#2', stretch=ttk.tkinter.NO)
         self.RecordsTreeView.column('#3', stretch=ttk.tkinter.NO)
         self.RecordsTreeView.column('#4', stretch=ttk.tkinter.NO)
-        self.RecordsTreeView.grid(row=3,column=3, columnspan=2,rowspan=10, sticky='nsew')
+        self.RecordsTreeView.grid(row=3,column=3, columnspan=1,rowspan=10, sticky='nsew')
+        self.RecordsTreeView.selectmode = 
 
         self.RecordsTreeView.tag_configure("Gestart",background="red")
         self.RecordsTreeView.tag_configure("Gestopt",background="green")
@@ -146,6 +147,11 @@ class MainScreen:
 
         self.CheckForUpdatesFromController()
 
+        # Initialize BL
+        self.blTimeRecord = BLTimeRecord.BLTimeRecord(self.dbConnection)
+        self.blProject = BLProject.BLProject(self.dbConnection)
+        self.blTimeRecordView = BLTimeRecordView.BLTimeRecordView(self.dbConnection)
+
     def ctrl(self,queue,killEvent):
         dac = DAController.DAController(queue,killEvent)
         dac.Listen()
@@ -159,17 +165,15 @@ class MainScreen:
     def CheckForUpdatesFromController(self):
         if not self.Queue.empty():
             queue = self.Queue.get()
-            blPr = BLProject.BLProject(self.dbConnection)
-            project = blPr.GetByButton(queue)
+            project = self.blProject.GetByButton(queue)
             if project is not None:
                 print(project.Description)
                 recordType = 1
-                blTr = BLTimeRecord.BLTimeRecord(self.dbConnection)
                 for record in self.Cache.TimeRecords:
                     if record.StatusID == TimeRecordStatusEnum.TimeRecordStatusEnum.Gestart.value:
                         record.StatusID = TimeRecordStatusEnum.TimeRecordStatusEnum.Gestopt.value
                         record.EndHour = Globals.GetCurrentTime()
-                        blTr.Update(record)
+                        self.blTimeRecord.Update(record)
                 timeRecord = TimeRecord.TimeRecord(None,Globals.GetCurrentTime(),None,project.ID,recordType,'Automatically generated',TimeRecordStatusEnum.TimeRecordStatusEnum.Gestart.value,0,None,None)
                 valid = TimeRecordValidation.TimeRecordValidation()
                 validationMessage = valid.ValidateOnCreation(timeRecord)
@@ -180,7 +184,7 @@ class MainScreen:
                     messagebox.showerror('Error',errorMessage)
                 else:
                     index = self.DaysCombo.current()
-                    blTr.Create(timeRecord)
+                    self.blTimeRecord.Create(timeRecord)
                     self.Cache.RefreshAllStaticData()
                     self.FillCombos()
                     if index==-1: index = 0
@@ -189,10 +193,9 @@ class MainScreen:
         self.Master.after(500, self.CheckForUpdatesFromController)
 
     def OpenInOneNote(self):
-        i=1
-        # sel = self.RecordsTreeView.curselection()[0]
-        # timeRecordView = self.Cache.TimeRecordViews[sel]
-        # os.system("start "+timeRecordView.OneNoteLink)
+        sel = self.RecordsTreeView.selection()[0]
+        timeRecordView = self.blTimeRecordView.GetById(sel.item("ID"))
+        os.system("start "+timeRecordView.OneNoteLink)
 
     def CopyRecord(self):
         i=1
